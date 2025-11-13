@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "host": "main--fma-xwalk--edshol.aem.page",
+  "mountpoints": [
+    {
+      "path": "/",
+      "url": "https://author-p171061-e1845512.adobeaemcloud.com/bin/franklin.delivery/edshol/fma-xwalk/main"
+    }
+  ]
+}
