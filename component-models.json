@@ -223,21 +223,21 @@
         "valueType": "string",
         "name": "product_title",
         "label": "Product Title",
-        "value": ""
+        "value": "Product Title"
       },
       {
         "component": "richtext",
         "valueType": "string",
         "name": "product_descr",
         "label": "Product Description",
-        "value": ""
+        "value": "<p>Product description goes here</p>"
       },
       {
         "component": "text",
         "valueType": "number",
         "name": "product_price",
         "label": "Product Price",
-        "value": ""
+        "value": "1000"
       }
     ]
   }
