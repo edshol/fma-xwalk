@@ -1,14 +1,29 @@
 export default function decorate(block) {
-  // Wrap each column with appropriate class
-  [...block.children].forEach((row) => {
-    [...row.children].forEach((col, index) => {
-      if (index === 0) {
-        // First column is the label
-        col.classList.add('product-label');
-      } else {
-        // Second column is the value
-        col.classList.add('product-value');
-      }
-    });
+  // Get all p tags from the first div
+  const firstDiv = block.querySelector('div');
+  if (!firstDiv) return;
+
+  const pTags = [...firstDiv.querySelectorAll('p')];
+
+  // Field names in order
+  const fieldOrder = ['product_title', 'product_descr', 'product_price'];
+
+  // Clear the block
+  block.innerHTML = '';
+
+  // Create a wrapper for each field
+  pTags.forEach((p, index) => {
+    if (index < fieldOrder.length) {
+      const fieldName = fieldOrder[index];
+      const wrapper = document.createElement('div');
+      wrapper.className = fieldName;
+
+      const valueDiv = document.createElement('div');
+      valueDiv.className = `${fieldName}-value`;
+      valueDiv.appendChild(p);
+
+      wrapper.appendChild(valueDiv);
+      block.appendChild(wrapper);
+    }
   });
 }

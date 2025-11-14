@@ -5,30 +5,38 @@
 }
 
 .product > div {
-  display: flex;
   margin-bottom: 1rem;
-  gap: 1rem;
 }
 
-.product .product-label {
+/* Product Title */
+.product .product_title {
+  margin-bottom: 1rem;
+}
+
+.product .product_title-value {
+  font-size: 2rem;
   font-weight: bold;
-  min-width: 150px;
-  color: #666;
-}
-
-.product .product-value {
-  flex: 1;
   color: #333;
 }
 
-/* Style specific fields */
-.product > div:first-child .product-value {
-  font-size: 1.5rem;
-  font-weight: bold;
+/* Product Description */
+.product .product_descr {
+  margin-bottom: 1.5rem;
 }
 
-.product > div:last-child .product-value {
-  font-size: 1.25rem;
-  color: #e74c3c;
+.product .product_descr-value {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #666;
+}
+
+/* Product Price */
+.product .product_price {
+  margin-top: 1.5rem;
+}
+
+.product .product_price-value {
+  font-size: 1.75rem;
   font-weight: bold;
+  color: #e74c3c;
 }
