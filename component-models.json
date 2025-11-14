@@ -214,5 +214,31 @@
         "valueType": "string"
       }
     ]
+  },
+  {
+    "id": "product",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "product_title",
+        "label": "Product Title",
+        "value": ""
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "product_descr",
+        "label": "Product Description",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "number",
+        "name": "product_price",
+        "label": "Product Price",
+        "value": ""
+      }
+    ]
   }
 ]
