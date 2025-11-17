@@ -1,43 +1,51 @@
-export default function decorate0(block) {
-  // Get all p tags and images from the first div
-  const firstDiv = block.querySelector('div');
-  if (!firstDiv) return;
+// export default function decorate(block) {
+//   // Get all p tags and images from the first div
+//   const firstDiv = block.querySelector('div');
+//   if (!firstDiv) return;
 
-  const pTags = [...firstDiv.querySelectorAll('p')];
-  const images = [...firstDiv.querySelectorAll('picture')];
+//   const pTags = [...firstDiv.querySelectorAll('p')];
+//   const images = [...firstDiv.querySelectorAll('picture')];
 
-  // Field names in order
-  const fieldOrder = ['product_title', 'product_descr', 'product_price', 'release_region', 'product_image', 'release_date'];
+//   console.log('Number of p tags:', pTags.length);
+//   console.log('Number of images:', images.length);
+//   console.log('P tags content:', pTags.map(p => p.textContent));
 
-  // Clear the block
-  block.innerHTML = '';
+//   // Field names in order
+//   const fieldOrder = ['product_title', 'product_descr', 'product_price', 'release_region', 'product_image', 'release_date'];
 
-  let pIndex = 0;
-  let imgIndex = 0;
+//   // Clear the block
+//   block.innerHTML = '';
 
-  // Create a wrapper for each field
-  fieldOrder.forEach((fieldName) => {
-    const wrapper = document.createElement('div');
-    wrapper.className = fieldName;
+//   let pIndex = 0;
+//   let imgIndex = 0;
 
-    const valueDiv = document.createElement('div');
-    valueDiv.className = `${fieldName}-value`;
+//   // Create a wrapper for each field
+//   fieldOrder.forEach((fieldName) => {
+//     console.log(`Processing field: ${fieldName}, pIndex: ${pIndex}, imgIndex: ${imgIndex}`);
 
-    // Handle image field
-    if (fieldName === 'product_image') {
-      if (images[imgIndex]) {
-        valueDiv.appendChild(images[imgIndex]);
-        imgIndex++;
-      }
-      // Always add the wrapper even if there's no image
-      wrapper.appendChild(valueDiv);
-      block.appendChild(wrapper);
-    } else if (pTags[pIndex]) {
-      // Handle text/richtext/date fields
-      valueDiv.appendChild(pTags[pIndex]);
-      wrapper.appendChild(valueDiv);
-      block.appendChild(wrapper);
-      pIndex++;
-    }
-  });
-}
+//     const wrapper = document.createElement('div');
+//     wrapper.className = fieldName;
+
+//     const valueDiv = document.createElement('div');
+//     valueDiv.className = `${fieldName}-value`;
+
+//     // Handle image field
+//     if (fieldName === 'product_image') {
+//       if (images[imgIndex]) {
+//         valueDiv.appendChild(images[imgIndex]);
+//         imgIndex++;
+//       }
+//       // Always add the wrapper even if there's no image
+//       wrapper.appendChild(valueDiv);
+//       block.appendChild(wrapper);
+//     } else {
+//       // Handle text/richtext/date fields
+//       if (pTags[pIndex]) {
+//         valueDiv.appendChild(pTags[pIndex]);
+//         pIndex++;
+//       }
+//       wrapper.appendChild(valueDiv);
+//       block.appendChild(wrapper);
+//     }
+//   });
+// }
