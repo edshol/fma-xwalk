@@ -238,6 +238,27 @@
         "name": "product_price",
         "label": "Product Price",
         "value": "1000"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "release_region",
+        "label": "Release Region",
+        "value": "<p>National release</p>"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "product_image",
+        "label": "Product Image",
+        "multi": false
+      },
+      {
+        "component": "date-time",
+        "valueType": "date",
+        "name": "release_date",
+        "label": "Release Date",
+        "value": ""
       }
     ]
   }

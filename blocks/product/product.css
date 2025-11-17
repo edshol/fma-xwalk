@@ -40,3 +40,37 @@
   font-weight: bold;
   color: #e74c3c;
 }
+
+/* Release Region */
+.product .release_region {
+  margin-bottom: 1rem;
+}
+
+.product .release_region-value {
+  font-size: 1rem;
+  color: #555;
+  font-style: italic;
+}
+
+/* Product Image */
+.product .product_image {
+  margin: 1.5rem 0;
+}
+
+.product .product_image-value img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Release Date */
+.product .release_date {
+  margin-top: 1rem;
+}
+
+.product .release_date-value {
+  font-size: 1rem;
+  color: #777;
+  font-weight: 500;
+}
