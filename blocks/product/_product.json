@@ -42,11 +42,11 @@
           "value": "1000"
         },
         {
-          "component": "richtext",
+          "component": "text",
           "valueType": "string",
           "name": "release_region",
           "label": "Release Region",
-          "value": "<p>National release</p>"
+          "value": "National release"
         },
         {
           "component": "reference",
@@ -56,8 +56,8 @@
           "multi": false
         },
         {
-          "component": "date-time",
-          "valueType": "date",
+          "component": "text",
+          "valueType": "string",
           "name": "release_date",
           "label": "Release Date",
           "value": "2025-01-01"
