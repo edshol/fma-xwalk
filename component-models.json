@@ -261,5 +261,24 @@
         "value": "2025-01-01"
       }
     ]
+  },
+  {
+    "id": "test",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title",
+        "value": "Default Title"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "descr",
+        "label": "Description",
+        "value": "Default Description"
+      }
+    ]
   }
 ]

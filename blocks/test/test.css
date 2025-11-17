@@ -1,0 +1,13 @@
+.test {
+  padding: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+}
+
+.test > div {
+  margin-bottom: 0.5rem;
+}
+
+.test > div:last-child {
+  margin-bottom: 0;
+}
