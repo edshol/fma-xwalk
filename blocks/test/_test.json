@@ -10,8 +10,7 @@
             "template": {
               "name": "Test",
               "model": "test",
-              "title": "Default Test Title",
-              "descr": "Default Test Description"
+              "key-value": true
             }
           }
         }
@@ -25,12 +24,14 @@
         {
           "component": "text",
           "valueType": "string",
+          "value": "Your text will show here.",
           "name": "title",
           "label": "Title"
         },
         {
           "component": "text",
           "valueType": "string",
+          "value": "Your descr will show here.",
           "name": "descr",
           "label": "Description"
         }
