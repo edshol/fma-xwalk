@@ -234,7 +234,7 @@
       },
       {
         "component": "text",
-        "valueType": "number",
+        "valueType": "string",
         "name": "product_price",
         "label": "Product Price",
         "value": "1000"
@@ -269,13 +269,15 @@
         "component": "text",
         "valueType": "string",
         "name": "title",
-        "label": "Title"
+        "label": "Title",
+        "value": "Your text will show here."
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "descr",
-        "label": "Description"
+        "label": "Description",
+        "value": "Your descr will show here."
       }
     ]
   }
