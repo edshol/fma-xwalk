@@ -1,4 +1,4 @@
-export default function decorate(block) {
+export default function decorate0(block) {
   // Get all p tags and images from the first div
   const firstDiv = block.querySelector('div');
   if (!firstDiv) return;
@@ -24,16 +24,20 @@ export default function decorate(block) {
     valueDiv.className = `${fieldName}-value`;
 
     // Handle image field
-    if (fieldName === 'product_image' && images[imgIndex]) {
-      valueDiv.appendChild(images[imgIndex]);
-      imgIndex++;
+    if (fieldName === 'product_image') {
+      if (images[imgIndex]) {
+        valueDiv.appendChild(images[imgIndex]);
+        imgIndex++;
+      }
+      // Always add the wrapper even if there's no image
+      wrapper.appendChild(valueDiv);
+      block.appendChild(wrapper);
     } else if (pTags[pIndex]) {
       // Handle text/richtext/date fields
       valueDiv.appendChild(pTags[pIndex]);
+      wrapper.appendChild(valueDiv);
+      block.appendChild(wrapper);
       pIndex++;
     }
-
-    wrapper.appendChild(valueDiv);
-    block.appendChild(wrapper);
   });
 }

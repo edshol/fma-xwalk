@@ -258,7 +258,7 @@
         "valueType": "date",
         "name": "release_date",
         "label": "Release Date",
-        "value": ""
+        "value": "2025-01-01"
       }
     ]
   }
