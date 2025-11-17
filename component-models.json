@@ -269,15 +269,13 @@
         "component": "text",
         "valueType": "string",
         "name": "title",
-        "label": "Title",
-        "value": "Default Title"
+        "label": "Title"
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "descr",
-        "label": "Description",
-        "value": "Default Description"
+        "label": "Description"
       }
     ]
   }
