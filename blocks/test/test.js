@@ -1,4 +1,26 @@
-export default function decorate(block) {
+async function loadCSV(csvPath) {
+  console.log('######### loadCSV called with path:', csvPath);
+  try {
+    console.log(' ########  Attempting to fetch CSV...');
+    const response = await fetch(csvPath);
+    console.log('Fetch response:', response.status, response.statusText);
+
+    if (!response.ok) {
+      throw new Error(`Failed to load CSV: ${response.status} ${response.statusText}`);
+    }
+
+    const text = await response.text();
+    console.log(' ========== CSV loaded successfully. Content length:', text.length);
+    console.log(' ========== CSV content:');
+    console.log(text);
+    return text;
+  } catch (error) {
+    console.error('Error loading CSV:', error);
+    return `Error: ${error.message}`;
+  }
+}
+
+export default async function decorate(block) {
   console.log('=== TEST BLOCK DECORATE CALLED ===');
   console.log('Block element:', block);
 
@@ -29,6 +51,15 @@ export default function decorate(block) {
   if (csvPathElement) {
     const csvPath = csvPathElement.textContent.trim();
     console.log('CSV Path value:', csvPath);
+
+    // CSVを読み込んでconsole.logに出力
+    if (csvPath) {
+      console.log(' ######### Starting CSV load...');
+      await loadCSV(csvPath);
+      console.log(' ######### CSV load completed.');
+    } else {
+      console.log(' ######### CSV path is empty!');
+    }
   } else {
     console.log('ERROR: csvPath element not found!');
   }
