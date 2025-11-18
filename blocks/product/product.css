@@ -67,9 +67,18 @@
   display: inline-block;
 }
 
+.product .region-tag .region-value {
+  font-size: 0;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+  overflow: hidden;
+}
+
 .product .region-tag.active {
-  background-color: #d4f1f4;
-  color: #006b7d;
+  background-color: #007DB8;
+  color: #ffffff;
 }
 
 .product .region-tag.inactive {
