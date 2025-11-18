@@ -77,4 +77,39 @@ export default function decorate(block) {
       }
     }
   });
+
+  // 2列レイアウト用のコンテナを作成
+  const productImage = block.querySelector('.product_image');
+  const productDescr = block.querySelector('.product_descr');
+  const productPrice = block.querySelector('.product_price');
+  const remarks = block.querySelector('.remarks');
+  const allergy = block.querySelector('.allergy');
+
+  if (productImage && productDescr) {
+    // 2列コンテナを作成
+    const twoColumnContainer = document.createElement('div');
+    twoColumnContainer.className = 'product-two-column';
+
+    // 左列（画像）
+    const leftColumn = document.createElement('div');
+    leftColumn.className = 'product-left-column';
+    leftColumn.appendChild(productImage);
+
+    // 右列（説明、価格、備考、アレルギー）
+    const rightColumn = document.createElement('div');
+    rightColumn.className = 'product-right-column';
+    if (productDescr) rightColumn.appendChild(productDescr);
+    if (productPrice) rightColumn.appendChild(productPrice);
+    if (remarks) rightColumn.appendChild(remarks);
+    if (allergy) rightColumn.appendChild(allergy);
+
+    twoColumnContainer.appendChild(leftColumn);
+    twoColumnContainer.appendChild(rightColumn);
+
+    // product_titleの後に挿入
+    const productTitle = block.querySelector('.product_title');
+    if (productTitle && productTitle.parentElement) {
+      productTitle.parentElement.insertAdjacentElement('afterend', twoColumnContainer);
+    }
+  }
 }
