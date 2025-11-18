@@ -65,7 +65,7 @@
           "value": "1000"
         },
         {
-          "component": "text",
+          "component": "date",
           "valueType": "string",
           "name": "release_date",
           "label": "Release Date",

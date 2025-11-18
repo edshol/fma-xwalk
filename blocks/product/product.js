@@ -53,11 +53,11 @@ export default function decorate(block) {
   // AEM出力順序に対応するフィールド名
   const fieldNames = [
     'release_region',
+    'release_date',
     'product_title',
     'product_image',
     'product_descr',
     'product_price',
-    'release_date',
     'remarks',
     'allergy'
   ];
