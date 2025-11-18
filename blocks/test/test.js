@@ -1,3 +1,23 @@
+function parseCSV(csvText) {
+  const lines = csvText.split('\n').filter(line => line.trim());
+  if (lines.length === 0) return [];
+
+  const headers = lines[0].split(',').map(h => h.trim());
+  console.log('CSV headers:', headers);
+
+  const data = [];
+  for (let i = 1; i < lines.length; i++) {
+    const values = lines[i].split(',').map(v => v.trim());
+    const row = {};
+    headers.forEach((header, index) => {
+      row[header] = values[index] || '';
+    });
+    data.push(row);
+  }
+
+  return data;
+}
+
 async function loadCSV(csvPath) {
   console.log('######### loadCSV called with path:', csvPath);
   try {
@@ -16,8 +36,44 @@ async function loadCSV(csvPath) {
     return text;
   } catch (error) {
     console.error('Error loading CSV:', error);
-    return `Error: ${error.message}`;
+    return null;
   }
+}
+
+async function createNodesFromCSV(csvPath) {
+  console.log('Creating nodes from CSV:', csvPath);
+
+  const csvContent = await loadCSV(csvPath);
+  if (!csvContent) {
+    console.error('Failed to load CSV');
+    return;
+  }
+
+  const data = parseCSV(csvContent);
+  console.log('Parsed CSV data:', data);
+
+  if (data.length === 0) {
+    console.log('No data rows found in CSV');
+    return;
+  }
+
+  // nameフィールドが存在することを確認
+  const nameField = data[0].name || data[0].Name || data[0].NAME;
+  if (!nameField && !data[0].hasOwnProperty('name')) {
+    console.error('CSV does not have a "name" field');
+    console.log('Available fields:', Object.keys(data[0]));
+    return;
+  }
+
+  // 各行に対してノードを作成
+  data.forEach((row, index) => {
+    const name = row.name || row.Name || row.NAME || `item-${index}`;
+    const nodePath = `/content/fma/goods/omusubi/${name}`;
+    console.log(`Creating node ${index + 1}:`, nodePath);
+    console.log('Node data:', row);
+  });
+
+  console.log(`Total nodes to create: ${data.length}`);
 }
 
 export default async function decorate(block) {
@@ -52,11 +108,11 @@ export default async function decorate(block) {
     const csvPath = csvPathElement.textContent.trim();
     console.log('CSV Path value:', csvPath);
 
-    // CSVを読み込んでconsole.logに出力
+    // CSVを読み込んでノードを作成
     if (csvPath) {
-      console.log(' ######### Starting CSV load...');
-      await loadCSV(csvPath);
-      console.log(' ######### CSV load completed.');
+      console.log(' ######### Starting CSV load and node creation...');
+      await createNodesFromCSV(csvPath);
+      console.log(' ######### Node creation completed.');
     } else {
       console.log(' ######### CSV path is empty!');
     }
