@@ -49,13 +49,103 @@ async function getCSRFToken() {
   }
 }
 
-async function createNodeViaAPI(nodePath, nodeData, csrfToken) {
-  console.log('Creating node:', nodePath);
+async function createPageNode(nodePath, csrfToken) {
+  console.log('Creating cq:Page node:', nodePath);
+
+  try {
+    const formData = new URLSearchParams();
+    formData.append('jcr:primaryType', 'cq:Page');
+
+    const response = await fetch(nodePath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'CSRF-Token': csrfToken
+      },
+      body: formData.toString()
+    });
+
+    if (response.ok) {
+      console.log(`✓ cq:Page created: ${nodePath}`);
+      return true;
+    } else {
+      console.error(`✗ Failed to create cq:Page: ${response.status}`);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error creating cq:Page:', error);
+    return false;
+  }
+}
+
+async function createJcrContentNode(nodePath, csrfToken) {
+  console.log('Creating jcr:content node:', nodePath);
+
+  try {
+    const formData = new URLSearchParams();
+    formData.append('jcr:primaryType', 'cq:PageContent');
+    formData.append('sling:resourceType', 'core/franklin/components/page/v1/page');
+
+    const response = await fetch(nodePath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'CSRF-Token': csrfToken
+      },
+      body: formData.toString()
+    });
+
+    if (response.ok) {
+      console.log(`✓ jcr:content created: ${nodePath}`);
+      return true;
+    } else {
+      console.error(`✗ Failed to create jcr:content: ${response.status}`);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error creating jcr:content:', error);
+    return false;
+  }
+}
+
+async function createUnstructuredNode(nodePath, csrfToken) {
+  console.log('Creating nt:unstructured node:', nodePath);
 
   try {
     const formData = new URLSearchParams();
     formData.append('jcr:primaryType', 'nt:unstructured');
 
+    const response = await fetch(nodePath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'CSRF-Token': csrfToken
+      },
+      body: formData.toString()
+    });
+
+    if (response.ok) {
+      console.log(`✓ nt:unstructured created: ${nodePath}`);
+      return true;
+    } else {
+      console.error(`✗ Failed to create nt:unstructured: ${response.status}`);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error creating nt:unstructured:', error);
+    return false;
+  }
+}
+
+async function createBlockNode(nodePath, nodeData, csrfToken) {
+  console.log('Creating block node with data:', nodePath);
+
+  try {
+    const formData = new URLSearchParams();
+    formData.append('jcr:primaryType', 'nt:unstructured');
+    formData.append('sling:resourceType', 'core/franklin/components/block/v1/block');
+
+    // CSVのすべてのプロパティを追加
     Object.keys(nodeData).forEach(key => {
       formData.append(key, nodeData[key]);
     });
@@ -70,16 +160,57 @@ async function createNodeViaAPI(nodePath, nodeData, csrfToken) {
     });
 
     if (response.ok) {
-      console.log(`✓ Node created: ${nodePath}`);
-      return { success: true, path: nodePath };
+      console.log(`✓ block node created: ${nodePath}`);
+      return true;
     } else {
-      console.error(`✗ Failed: ${response.status}`);
-      return { success: false, path: nodePath, error: response.status };
+      console.error(`✗ Failed to create block: ${response.status}`);
+      return false;
     }
   } catch (error) {
-    console.error('Error:', error);
-    return { success: false, path: nodePath, error: error.message };
+    console.error('Error creating block:', error);
+    return false;
   }
+}
+
+async function createNodeViaAPI(nodePath, nodeData, csrfToken) {
+  console.log('Creating complete page structure:', nodePath);
+
+  // 1. cq:Page ノードを作成
+  const pageCreated = await createPageNode(nodePath, csrfToken);
+  if (!pageCreated) {
+    return { success: false, path: nodePath, error: 'Failed to create cq:Page' };
+  }
+
+  // 2. jcr:content ノードを作成
+  const jcrContentPath = `${nodePath}/jcr:content`;
+  const jcrContentCreated = await createJcrContentNode(jcrContentPath, csrfToken);
+  if (!jcrContentCreated) {
+    return { success: false, path: nodePath, error: 'Failed to create jcr:content' };
+  }
+
+  // 3. root ノードを作成
+  const rootPath = `${jcrContentPath}/root`;
+  const rootCreated = await createUnstructuredNode(rootPath, csrfToken);
+  if (!rootCreated) {
+    return { success: false, path: nodePath, error: 'Failed to create root' };
+  }
+
+  // 4. section ノードを作成
+  const sectionPath = `${rootPath}/section`;
+  const sectionCreated = await createUnstructuredNode(sectionPath, csrfToken);
+  if (!sectionCreated) {
+    return { success: false, path: nodePath, error: 'Failed to create section' };
+  }
+
+  // 5. block ノードを作成（CSVデータを含む）
+  const blockPath = `${sectionPath}/block`;
+  const blockCreated = await createBlockNode(blockPath, nodeData, csrfToken);
+  if (!blockCreated) {
+    return { success: false, path: nodePath, error: 'Failed to create block' };
+  }
+
+  console.log(`✓ Complete page structure created: ${nodePath}`);
+  return { success: true, path: nodePath };
 }
 
 async function createNodesFromCSV(csvPath) {
