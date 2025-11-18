@@ -75,3 +75,25 @@
   font-weight: 500;
 }
 
+/* Remarks */
+.product .remarks {
+  margin-top: 1.5rem;
+}
+
+.product .remarks-value {
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+}
+
+/* Allergy */
+.product .allergy {
+  margin-top: 1rem;
+}
+
+.product .allergy-value {
+  font-size: 0.9rem;
+  color: #e67e22;
+  font-weight: 600;
+}
+

@@ -167,11 +167,13 @@
                 "template": {
                   "name": "Product",
                   "model": "product",
+                  "release_region": "National release",
                   "product_title": "Product Title",
                   "product_descr": "<p>Product description goes here</p>",
+                  "release_date": "2025-01-01",
                   "product_price": "1000",
-                  "release_region": "National release",
-                  "release_date": "2025-01-01"
+                  "remarks": "備考欄",
+                  "allergy": "アレルギー情報"
                 }
               }
             }

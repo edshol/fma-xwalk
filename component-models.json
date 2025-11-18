@@ -221,6 +221,13 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "release_region",
+        "label": "Release Region",
+        "value": "National release"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "product_title",
         "label": "Product Title",
         "value": "Product Title"
@@ -235,6 +242,13 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "release_date",
+        "label": "Release Date",
+        "value": "2025-01-01"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "product_price",
         "label": "Product Price",
         "value": "1000"
@@ -242,23 +256,16 @@
       {
         "component": "text",
         "valueType": "string",
-        "name": "release_region",
-        "label": "Release Region",
-        "value": "National release"
-      },
-      {
-        "component": "reference",
-        "valueType": "string",
-        "name": "product_image",
-        "label": "Product Image",
-        "multi": false
+        "name": "remarks",
+        "label": "Remarks",
+        "value": "備考欄"
       },
       {
         "component": "text",
         "valueType": "string",
-        "name": "release_date",
-        "label": "Release Date",
-        "value": "2025-01-01"
+        "name": "allergy",
+        "label": "Allergy",
+        "value": "アレルギー情報"
       }
     ]
   },
