@@ -1,10 +1,15 @@
 async function loadCSV(csvPath) {
+  console.log('loadCSV called with path:', csvPath);
   try {
+    console.log('Attempting to fetch CSV...');
     const response = await fetch(csvPath);
+    console.log('Fetch response:', response.status, response.statusText);
     if (!response.ok) {
       throw new Error(`Failed to load CSV: ${response.status} ${response.statusText}`);
     }
     const text = await response.text();
+    console.log('CSV loaded successfully. Content length:', text.length);
+    console.log('CSV content preview:', text.substring(0, 200));
     return text;
   } catch (error) {
     console.error('Error loading CSV:', error);
