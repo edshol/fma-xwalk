@@ -233,6 +233,13 @@
         "value": "Product Title"
       },
       {
+        "component": "reference",
+        "valueType": "string",
+        "name": "product_image",
+        "label": "Product Image",
+        "multi": false
+      },
+      {
         "component": "richtext",
         "valueType": "string",
         "name": "product_descr",
