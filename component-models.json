@@ -237,7 +237,8 @@
         "valueType": "string",
         "name": "product_image",
         "label": "Product Image",
-        "multi": false
+        "multi": false,
+        "value": "/content/dam/fma/image-default.jpg"
       },
       {
         "component": "richtext",

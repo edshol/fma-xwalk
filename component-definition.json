@@ -169,7 +169,7 @@
                   "model": "product",
                   "release_region": "National release",
                   "product_title": "Product Title",
-                  "product_image": "",
+                  "product_image": "/content/dam/fma/image-default.jpg",
                   "product_descr": "<p>Product description goes here</p>",
                   "release_date": "2025-01-01",
                   "product_price": "1000",
