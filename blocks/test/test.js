@@ -19,20 +19,17 @@ function parseCSV(csvText) {
 }
 
 async function loadCSV(csvPath) {
-  console.log('######### loadCSV called with path:', csvPath);
+  console.log('Loading CSV from:', csvPath);
   try {
-    console.log(' ########  Attempting to fetch CSV...');
     const response = await fetch(csvPath);
-    console.log('Fetch response:', response.status, response.statusText);
+    console.log('CSV fetch response:', response.status);
 
     if (!response.ok) {
-      throw new Error(`Failed to load CSV: ${response.status} ${response.statusText}`);
+      throw new Error(`Failed to load CSV: ${response.status}`);
     }
 
     const text = await response.text();
-    console.log(' ========== CSV loaded successfully. Content length:', text.length);
-    console.log(' ========== CSV content:');
-    console.log(text);
+    console.log('CSV loaded successfully. Length:', text.length);
     return text;
   } catch (error) {
     console.error('Error loading CSV:', error);
@@ -40,83 +37,106 @@ async function loadCSV(csvPath) {
   }
 }
 
+async function getCSRFToken() {
+  try {
+    const response = await fetch('/libs/granite/csrf/token.json');
+    const data = await response.json();
+    console.log('CSRF Token obtained:', data.token);
+    return data.token;
+  } catch (error) {
+    console.error('Failed to get CSRF token:', error);
+    return null;
+  }
+}
+
+async function createNodeViaAPI(nodePath, nodeData, csrfToken) {
+  console.log('Creating node:', nodePath);
+
+  try {
+    const formData = new URLSearchParams();
+    formData.append('jcr:primaryType', 'nt:unstructured');
+
+    Object.keys(nodeData).forEach(key => {
+      formData.append(key, nodeData[key]);
+    });
+
+    const response = await fetch(nodePath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'CSRF-Token': csrfToken
+      },
+      body: formData.toString()
+    });
+
+    if (response.ok) {
+      console.log(`✓ Node created: ${nodePath}`);
+      return { success: true, path: nodePath };
+    } else {
+      console.error(`✗ Failed: ${response.status}`);
+      return { success: false, path: nodePath, error: response.status };
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    return { success: false, path: nodePath, error: error.message };
+  }
+}
+
 async function createNodesFromCSV(csvPath) {
-  console.log('Creating nodes from CSV:', csvPath);
+  console.log('=== Starting node creation ===');
+
+  const csrfToken = await getCSRFToken();
+  if (!csrfToken) {
+    console.error('Cannot proceed without CSRF token');
+    return;
+  }
 
   const csvContent = await loadCSV(csvPath);
-  if (!csvContent) {
-    console.error('Failed to load CSV');
-    return;
-  }
+  if (!csvContent) return;
 
   const data = parseCSV(csvContent);
-  console.log('Parsed CSV data:', data);
+  if (data.length === 0) return;
 
-  if (data.length === 0) {
-    console.log('No data rows found in CSV');
-    return;
-  }
+  const results = [];
 
-  // nameフィールドが存在することを確認
-  const nameField = data[0].name || data[0].Name || data[0].NAME;
-  if (!nameField && !data[0].hasOwnProperty('name')) {
-    console.error('CSV does not have a "name" field');
-    console.log('Available fields:', Object.keys(data[0]));
-    return;
-  }
-
-  // 各行に対してノードを作成
-  data.forEach((row, index) => {
-    const name = row.name || row.Name || row.NAME || `item-${index}`;
+  for (let i = 0; i < data.length; i++) {
+    const row = data[i];
+    const name = row.name || row.Name || row.NAME || `item-${i}`;
     const nodePath = `/content/fma/goods/omusubi/${name}`;
-    console.log(`Creating node ${index + 1}:`, nodePath);
-    console.log('Node data:', row);
-  });
 
-  console.log(`Total nodes to create: ${data.length}`);
+    console.log(`\n--- Processing ${i + 1}/${data.length} ---`);
+    const result = await createNodeViaAPI(nodePath, row, csrfToken);
+    results.push(result);
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  const successCount = results.filter(r => r.success).length;
+  console.log(`\n=== Summary: ${successCount}/${results.length} successful ===`);
+
+  return results;
 }
 
 export default async function decorate(block) {
-  console.log('=== TEST BLOCK DECORATE CALLED ===');
-  console.log('Block element:', block);
+  console.log('=== TEST BLOCK DECORATE ===');
 
-  // すべてのp要素を取得
   const allPElements = Array.from(block.querySelectorAll('div > div > p'));
-  console.log('Found p elements:', allPElements.length);
-
-  allPElements.forEach((pElement, index) => {
-    console.log(`p[${index}] content:`, pElement.textContent);
-  });
-
-  // フィールド名の配列（AEM出力順序に対応）
   const fieldNames = ['csvPath', 'result'];
 
-  // 各p要素にフィールド名のクラスを付与
   allPElements.forEach((pElement, index) => {
     if (index < fieldNames.length) {
-      const fieldName = fieldNames[index];
-      pElement.classList.add(fieldName);
-      console.log(`Added class '${fieldName}' to p[${index}]`);
+      pElement.classList.add(fieldNames[index]);
     }
   });
 
-  // csvPath要素を取得
   const csvPathElement = block.querySelector('.csvPath');
-  console.log('csvPath element found:', csvPathElement);
 
   if (csvPathElement) {
     const csvPath = csvPathElement.textContent.trim();
-    console.log('CSV Path value:', csvPath);
+    console.log('CSV Path:', csvPath);
 
-    // CSVを読み込んでノードを作成
     if (csvPath) {
-      console.log(' ######### Starting CSV load and node creation...');
       await createNodesFromCSV(csvPath);
-      console.log(' ######### Node creation completed.');
-    } else {
-      console.log(' ######### CSV path is empty!');
     }
-  } else {
-    console.log('ERROR: csvPath element not found!');
   }
 }
