@@ -49,6 +49,21 @@ function decorateReleaseRegion(element) {
   element.appendChild(container);
 }
 
+function decorateProductPrice(element) {
+  const text = element.textContent.trim();
+  if (!text) return;
+
+  // 数値を取得
+  const price = parseFloat(text);
+  if (isNaN(price)) return;
+
+  // 8%の消費税を加算
+  const taxIncludedPrice = Math.floor(price * 1.08);
+
+  // フォーマット: XXX円(税込XXX円)
+  element.textContent = `${price}円(税込${taxIncludedPrice}円)`;
+}
+
 export default function decorate(block) {
   // AEM出力順序に対応するフィールド名
   const fieldNames = [
@@ -74,6 +89,11 @@ export default function decorate(block) {
       // release_regionの場合は特別処理
       if (fieldName === 'release_region') {
         decorateReleaseRegion(pElement);
+      }
+
+      // product_priceの場合は価格フォーマット処理
+      if (fieldName === 'product_price') {
+        decorateProductPrice(pElement);
       }
     }
   });
