@@ -108,12 +108,13 @@ async function createJcrContentNode(nodePath, csrfToken) {
   }
 }
 
-async function createUnstructuredNode(nodePath, csrfToken) {
-  console.log('Creating nt:unstructured node:', nodePath);
+async function createRootNode(nodePath, csrfToken) {
+  console.log('Creating root node:', nodePath);
 
   try {
     const formData = new URLSearchParams();
     formData.append('jcr:primaryType', 'nt:unstructured');
+    formData.append('sling:resourceType', 'core/franklin/components/root/v1/root');
 
     const response = await fetch(nodePath, {
       method: 'POST',
@@ -125,14 +126,44 @@ async function createUnstructuredNode(nodePath, csrfToken) {
     });
 
     if (response.ok) {
-      console.log(`✓ nt:unstructured created: ${nodePath}`);
+      console.log(`✓ root node created: ${nodePath}`);
       return true;
     } else {
-      console.error(`✗ Failed to create nt:unstructured: ${response.status}`);
+      console.error(`✗ Failed to create root: ${response.status}`);
       return false;
     }
   } catch (error) {
-    console.error('Error creating nt:unstructured:', error);
+    console.error('Error creating root:', error);
+    return false;
+  }
+}
+
+async function createSectionNode(nodePath, csrfToken) {
+  console.log('Creating section node:', nodePath);
+
+  try {
+    const formData = new URLSearchParams();
+    formData.append('jcr:primaryType', 'nt:unstructured');
+    formData.append('sling:resourceType', 'core/franklin/components/section/v1/section');
+
+    const response = await fetch(nodePath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'CSRF-Token': csrfToken
+      },
+      body: formData.toString()
+    });
+
+    if (response.ok) {
+      console.log(`✓ section node created: ${nodePath}`);
+      return true;
+    } else {
+      console.error(`✗ Failed to create section: ${response.status}`);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error creating section:', error);
     return false;
   }
 }
@@ -190,14 +221,14 @@ async function createNodeViaAPI(nodePath, nodeData, csrfToken) {
 
   // 3. root ノードを作成
   const rootPath = `${jcrContentPath}/root`;
-  const rootCreated = await createUnstructuredNode(rootPath, csrfToken);
+  const rootCreated = await createRootNode(rootPath, csrfToken);
   if (!rootCreated) {
     return { success: false, path: nodePath, error: 'Failed to create root' };
   }
 
   // 4. section ノードを作成
   const sectionPath = `${rootPath}/section`;
-  const sectionCreated = await createUnstructuredNode(sectionPath, csrfToken);
+  const sectionCreated = await createSectionNode(sectionPath, csrfToken);
   if (!sectionCreated) {
     return { success: false, path: nodePath, error: 'Failed to create section' };
   }
