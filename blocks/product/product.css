@@ -52,6 +52,31 @@
   font-style: italic;
 }
 
+/* Release Region Tags */
+.product .release-region-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.product .region-tag {
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.product .region-tag.active {
+  background-color: #d4f1f4;
+  color: #006b7d;
+}
+
+.product .region-tag.inactive {
+  background-color: #e0e0e0;
+  color: #757575;
+}
+
 /* Product Image */
 .product .product_image {
   margin: 1.5rem 0;
