@@ -223,7 +223,7 @@
         "valueType": "string",
         "name": "release_region",
         "label": "Release Region",
-        "value": "北海道:1|東北:0|関東:1|東海:1|北陸関西:1|中国四国:1|九州沖縄:1"
+        "value": "北海道:1/東北:0/関東:1/東海:1/北陸関西:1/中国四国:1/九州沖縄:1"
       },
       {
         "component": "text",

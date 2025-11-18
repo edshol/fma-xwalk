@@ -2,8 +2,8 @@ function decorateReleaseRegion(element) {
   const text = element.textContent.trim();
   if (!text) return;
 
-  // パイプで分割
-  const regions = text.split('|').filter(r => r.trim());
+  // スラッシュで分割
+  const regions = text.split('/').filter(r => r.trim());
 
   // コンテナを作成
   const container = document.createElement('div');
@@ -28,7 +28,7 @@ function decorateReleaseRegion(element) {
       // 値を非表示用spanに（データとして保持）
       const valueSpan = document.createElement('span');
       valueSpan.className = 'region-value';
-      valueSpan.textContent = ':' + value + '|';
+      valueSpan.innerHTML = ':' + value + '&#47;';
 
       tag.appendChild(nameSpan);
       tag.appendChild(valueSpan);

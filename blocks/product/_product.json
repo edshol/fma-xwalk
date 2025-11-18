@@ -10,7 +10,7 @@
             "template": {
               "name": "product",
               "model": "product",
-              "release_region": "北海道:1|東北:0|関東:1|東海:1|北陸関西:1|中国四国:1|九州沖縄:1",
+              "release_region": "北海道:1/東北:0/関東:1/東海:1/北陸関西:1/中国四国:1/九州沖縄:1",
               "product_title": "Product Title",
               "product_image": "/content/dam/fma/image-default.jpg",
               "product_descr": "<p>Product description goes here</p>",
@@ -33,7 +33,7 @@
           "valueType": "string",
           "name": "release_region",
           "label": "発売地域",
-          "value": "北海道:1|東北:0|関東:1|東海:1|北陸関西:1|中国四国:1|九州沖縄:1"
+          "value": "北海道:1/東北:0/関東:1/東海:1/北陸関西:1/中国四国:1/九州沖縄:1"
         },
         {
           "component": "text",
