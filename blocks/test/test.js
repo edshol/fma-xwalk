@@ -1,3 +1,46 @@
-export default function decorate(block) {
-  // 空の実装
+async function loadCSV(csvPath) {
+  try {
+    const response = await fetch(csvPath);
+    if (!response.ok) {
+      throw new Error(`Failed to load CSV: ${response.status} ${response.statusText}`);
+    }
+    const text = await response.text();
+    return text;
+  } catch (error) {
+    console.error('Error loading CSV:', error);
+    return `Error: ${error.message}`;
+  }
+}
+
+export default async function decorate(block) {
+  // フィールド名の配列（AEM出力順序に対応）
+  const fieldNames = ['csvPath', 'result'];
+
+  // すべてのp要素を取得
+  const allPElements = Array.from(block.querySelectorAll('div > div > p'));
+
+  // 各p要素にフィールド名のクラスを付与
+  allPElements.forEach((pElement, index) => {
+    if (index < fieldNames.length) {
+      const fieldName = fieldNames[index];
+      pElement.classList.add(fieldName);
+    }
+  });
+
+  // csvPathとresult要素を取得
+  const csvPathElement = block.querySelector('.csvPath');
+  const resultElement = block.querySelector('.result');
+
+  if (csvPathElement && resultElement) {
+    // csvPathの値を取得
+    const csvPath = csvPathElement.textContent.trim();
+
+    if (csvPath) {
+      // CSVを読み込んで結果をresult要素に表示
+      const csvContent = await loadCSV(csvPath);
+      resultElement.textContent = csvContent;
+    } else {
+      resultElement.textContent = 'CSV path is not specified.';
+    }
+  }
 }

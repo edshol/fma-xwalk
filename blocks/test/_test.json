@@ -10,8 +10,8 @@
             "template": {
               "name": "test",
               "model": "test",
-              "title": "Your text will show here.",
-              "descr": "Your descr will show here."
+              "csvPath": "/content/dam/fma/csv/omusubi2.csv",
+              "result": ""
             }
           }
         }
@@ -25,16 +25,16 @@
         {
           "component": "text",
           "valueType": "string",
-          "value": "Your text will show here.",
-          "name": "title",
-          "label": "Title"
+          "value": "/content/dam/fma/csv/omusubi2.csv",
+          "name": "csvPath",
+          "label": "CSV Path"
         },
         {
           "component": "text",
           "valueType": "string",
-          "value": "Your descr will show here.",
-          "name": "descr",
-          "label": "Description"
+          "value": "",
+          "name": "result",
+          "label": "Result"
         }
       ]
     }
