@@ -50,10 +50,31 @@ function decorateReleaseRegion(element) {
 }
 
 export default function decorate(block) {
-  // 最初のp要素にrelease_regionクラスを付与し、値をパースして表示
-  const firstP = block.querySelector('div > div > p');
-  if (firstP) {
-    firstP.classList.add('release_region');
-    decorateReleaseRegion(firstP);
-  }
+  // AEM出力順序に対応するフィールド名
+  const fieldNames = [
+    'release_region',
+    'product_title',
+    'product_image',
+    'product_descr',
+    'product_price',
+    'release_date',
+    'remarks',
+    'allergy'
+  ];
+
+  // すべてのp要素を取得（フィールドの値が格納されている）
+  const allPElements = Array.from(block.querySelectorAll('div > div > p'));
+
+  // 各p要素にフィールド名のクラスを付与
+  allPElements.forEach((pElement, index) => {
+    if (index < fieldNames.length) {
+      const fieldName = fieldNames[index];
+      pElement.classList.add(fieldName);
+
+      // release_regionの場合は特別処理
+      if (fieldName === 'release_region') {
+        decorateReleaseRegion(pElement);
+      }
+    }
+  });
 }

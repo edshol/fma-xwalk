@@ -60,16 +60,16 @@
         {
           "component": "text",
           "valueType": "string",
-          "name": "release_date",
-          "label": "Release Date",
-          "value": "2025-01-01"
+          "name": "product_price",
+          "label": "Product Price",
+          "value": "1000"
         },
         {
           "component": "text",
           "valueType": "string",
-          "name": "product_price",
-          "label": "Product Price",
-          "value": "1000"
+          "name": "release_date",
+          "label": "Release Date",
+          "value": "2025-01-01"
         },
         {
           "component": "text",
