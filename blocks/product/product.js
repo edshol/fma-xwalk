@@ -2,8 +2,8 @@ function decorateReleaseRegion(element) {
   const text = element.textContent.trim();
   if (!text) return;
 
-  // 半角スペースで分割
-  const regions = text.split(' ').filter(r => r.trim());
+  // スラッシュで分割
+  const regions = text.split('/').filter(r => r.trim());
 
   // コンテナを作成
   const container = document.createElement('div');
