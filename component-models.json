@@ -285,7 +285,7 @@
         "valueType": "string",
         "name": "csvPath",
         "label": "CSV Path",
-        "value": "/content/dam/fma/csv/omusubi2.csv"
+        "value": "/content/dam/fma/csv/omusubi3.csv"
       },
       {
         "component": "text",
