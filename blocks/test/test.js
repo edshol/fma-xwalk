@@ -176,10 +176,17 @@ async function createBlockNode(nodePath, nodeData, csrfToken) {
     formData.append('jcr:primaryType', 'nt:unstructured');
     formData.append('sling:resourceType', 'core/franklin/components/block/v1/block');
     formData.append('model', 'product');
+    formData.append('name', 'Product');
 
-    // CSVのすべてのプロパティを追加
+    // CSVのプロパティを追加
     Object.keys(nodeData).forEach(key => {
-      formData.append(key, nodeData[key]);
+      if (key === 'name') {
+        // nameの値はjcr:titleに設定
+        formData.append('jcr:title', nodeData[key]);
+      } else {
+        // その他はそのまま
+        formData.append(key, nodeData[key]);
+      }
     });
 
     const response = await fetch(nodePath, {
