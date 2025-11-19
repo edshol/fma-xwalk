@@ -213,6 +213,77 @@ async function ensureImportedFolder(csvFolder, csrfToken) {
   }
 }
 
+async function ensureCategoryFolder(category, csrfToken) {
+  const contentCategoryPath = `/content/fma/goods/${category}`;
+  const damCategoryPath = `/content/dam/fma/goods/${category}`;
+
+  console.log(`Ensuring category folders for: ${category}`);
+
+  // /content/fma/goods/{category} を作成
+  try {
+    const checkContentResponse = await fetch(`${contentCategoryPath}.json`);
+    if (!checkContentResponse.ok) {
+      console.log(`Creating content category folder: ${contentCategoryPath}`);
+      const formData = new URLSearchParams();
+      formData.append('jcr:primaryType', 'cq:Page');
+
+      const createResponse = await fetch(contentCategoryPath, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'CSRF-Token': csrfToken
+        },
+        body: formData.toString()
+      });
+
+      if (createResponse.ok) {
+        console.log(`✓ Content category folder created: ${contentCategoryPath}`);
+      } else {
+        console.warn(`✗ Failed to create content category folder: ${createResponse.status}`);
+        return false;
+      }
+    } else {
+      console.log(`✓ Content category folder exists: ${contentCategoryPath}`);
+    }
+  } catch (error) {
+    console.warn('Error ensuring content category folder:', error);
+    return false;
+  }
+
+  // /content/dam/fma/goods/{category} を作成
+  try {
+    const checkDamResponse = await fetch(`${damCategoryPath}.json`);
+    if (!checkDamResponse.ok) {
+      console.log(`Creating DAM category folder: ${damCategoryPath}`);
+      const formData = new URLSearchParams();
+      formData.append('jcr:primaryType', 'sling:Folder');
+
+      const createResponse = await fetch(damCategoryPath, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'CSRF-Token': csrfToken
+        },
+        body: formData.toString()
+      });
+
+      if (createResponse.ok) {
+        console.log(`✓ DAM category folder created: ${damCategoryPath}`);
+      } else {
+        console.warn(`✗ Failed to create DAM category folder: ${createResponse.status}`);
+        return false;
+      }
+    } else {
+      console.log(`✓ DAM category folder exists: ${damCategoryPath}`);
+    }
+  } catch (error) {
+    console.warn('Error ensuring DAM category folder:', error);
+    return false;
+  }
+
+  return true;
+}
+
 async function moveImageToImported(sourcePath, csvFolder, csrfToken) {
   const fileName = sourcePath.substring(sourcePath.lastIndexOf('/') + 1);
   const importedPath = `${csvFolder}/imported/${fileName}`;
@@ -393,12 +464,24 @@ async function createNodesFromCSV(csvPath) {
   // importedフォルダの存在を確認/作成
   await ensureImportedFolder(csvFolder, csrfToken);
 
+  // カテゴリフォルダを事前に作成（重複を避けるためSetで管理）
+  const categories = new Set();
+  data.forEach(row => {
+    const category = (row.category || 'omusubi').toLowerCase();
+    categories.add(category);
+  });
+
+  // 各カテゴリフォルダを作成
+  for (const category of categories) {
+    await ensureCategoryFolder(category, csrfToken);
+  }
+
   const results = [];
 
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
     const name = row.name || row.Name || row.NAME || `item-${i}`;
-    const category = row.category || 'omusubi'; // デフォルトはomusubi
+    const category = (row.category || 'omusubi').toLowerCase(); // 小文字に変換
     const nodePath = `/content/fma/goods/${category}/${name}`;
 
     console.log(`\n--- Processing ${i + 1}/${data.length} ---`);
