@@ -170,6 +170,7 @@ async function createSectionNode(nodePath, csrfToken) {
 
 async function createBlockNode(nodePath, nodeData, csrfToken) {
   console.log('Creating block node with data:', nodePath);
+  console.log('CSV Data received:', nodeData);
 
   try {
     const formData = new URLSearchParams();
@@ -180,6 +181,7 @@ async function createBlockNode(nodePath, nodeData, csrfToken) {
 
     // CSVのプロパティを追加
     Object.keys(nodeData).forEach(key => {
+      console.log(`Processing CSV field: ${key} = ${nodeData[key]}`);
       if (key === 'name') {
         // nameの値はjcr:titleに設定
         formData.append('jcr:title', nodeData[key]);
@@ -188,6 +190,11 @@ async function createBlockNode(nodePath, nodeData, csrfToken) {
         formData.append(key, nodeData[key]);
       }
     });
+
+    // 送信データをログ出力
+    const formDataEntries = Array.from(formData.entries());
+    console.log('FormData to be sent:', formDataEntries);
+    console.log('FormData body:', formData.toString());
 
     const response = await fetch(nodePath, {
       method: 'POST',
@@ -202,7 +209,9 @@ async function createBlockNode(nodePath, nodeData, csrfToken) {
       console.log(`✓ block node created: ${nodePath}`);
       return true;
     } else {
+      const errorText = await response.text();
       console.error(`✗ Failed to create block: ${response.status}`);
+      console.error('Response body:', errorText);
       return false;
     }
   } catch (error) {
