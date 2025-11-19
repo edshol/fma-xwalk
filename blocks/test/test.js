@@ -78,7 +78,7 @@ async function createPageNode(nodePath, csrfToken) {
   }
 }
 
-async function createJcrContentNode(nodePath, csrfToken) {
+async function createJcrContentNode(nodePath, title, csrfToken) {
   console.log('Creating jcr:content node:', nodePath);
 
   try {
@@ -86,6 +86,11 @@ async function createJcrContentNode(nodePath, csrfToken) {
     formData.append('jcr:primaryType', 'cq:PageContent');
     formData.append('sling:resourceType', 'core/franklin/components/page/v1/page');
     formData.append('cq:template', '/libs/core/franklin/templates/page');
+
+    if (title) {
+      formData.append('jcr:title', title);
+      console.log(`Setting jcr:title: ${title}`);
+    }
 
     const response = await fetch(nodePath, {
       method: 'POST',
@@ -337,7 +342,7 @@ async function createNodeViaAPI(nodePath, nodeData, csrfToken) {
 
   // 2. jcr:content ノードを作成
   const jcrContentPath = `${nodePath}/jcr:content`;
-  const jcrContentCreated = await createJcrContentNode(jcrContentPath, csrfToken);
+  const jcrContentCreated = await createJcrContentNode(jcrContentPath, nodeData.product_title, csrfToken);
   if (!jcrContentCreated) {
     return { success: false, path: nodePath, error: 'Failed to create jcr:content' };
   }
