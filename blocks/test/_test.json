@@ -10,7 +10,7 @@
             "template": {
               "name": "test",
               "model": "test",
-              "csvPath": "/content/dam/fma/csv/omusubi2.csv",
+              "csvPath": "/content/dam/fma/csv/omusubi3.csv",
               "result": ""
             }
           }
@@ -25,7 +25,7 @@
         {
           "component": "text",
           "valueType": "string",
-          "value": "/content/dam/fma/csv/omusubi2.csv",
+          "value": "/content/dam/fma/csv/omusubi3.csv",
           "name": "csvPath",
           "label": "CSV Path"
         },

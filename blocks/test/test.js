@@ -168,6 +168,38 @@ async function createSectionNode(nodePath, csrfToken) {
   }
 }
 
+async function copyImageFile(sourcePath, destPath, csrfToken) {
+  console.log(`Copying image: ${sourcePath} → ${destPath}`);
+
+  try {
+    const formData = new URLSearchParams();
+    formData.append(':operation', 'copy');
+    formData.append(':dest', destPath);
+    formData.append(':replace', 'true');
+    formData.append('_charset_', 'utf-8');
+
+    const response = await fetch(sourcePath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'CSRF-Token': csrfToken
+      },
+      body: formData.toString()
+    });
+
+    if (response.ok) {
+      console.log(`✓ Image copied successfully: ${destPath}`);
+      return true;
+    } else {
+      console.warn(`✗ Image copy failed: ${response.status} (continues with original path)`);
+      return false;
+    }
+  } catch (error) {
+    console.warn('Error copying image:', error, '(continues with original path)');
+    return false;
+  }
+}
+
 async function createBlockNode(nodePath, nodeData, csrfToken) {
   console.log('Creating block node with data:', nodePath);
   console.log('CSV Data received:', nodeData);
@@ -276,6 +308,9 @@ async function createNodesFromCSV(csvPath) {
   const data = parseCSV(csvContent);
   if (data.length === 0) return;
 
+  // CSVフォルダパスを取得
+  const csvFolder = csvPath.substring(0, csvPath.lastIndexOf('/'));
+
   const results = [];
 
   for (let i = 0; i < data.length; i++) {
@@ -284,6 +319,22 @@ async function createNodesFromCSV(csvPath) {
     const nodePath = `/content/fma/goods/omusubi/${name}`;
 
     console.log(`\n--- Processing ${i + 1}/${data.length} ---`);
+
+    // 画像ファイルのコピー処理
+    if (row.product_image) {
+      const sourceImagePath = `${csvFolder}/${row.product_image}`;
+      const destImagePath = `/content/dam/fma/goods/omusubi/${row.product_image}`;
+
+      const imageCopied = await copyImageFile(sourceImagePath, destImagePath, csrfToken);
+      if (imageCopied) {
+        // コピー成功時はパスを更新
+        row.product_image = destImagePath;
+      } else {
+        // コピー失敗時は元のパスのまま続行
+        console.warn(`Continuing with original image path: ${row.product_image}`);
+      }
+    }
+
     const result = await createNodeViaAPI(nodePath, row, csrfToken);
     results.push(result);
 
@@ -310,7 +361,7 @@ export default async function decorate(block) {
   });
 
   const csvPathElement = block.querySelector('.csvPath');
-  const defaultCsvPath = csvPathElement ? csvPathElement.textContent.trim() : '/content/dam/fma/csv/omusubi2.csv';
+  const defaultCsvPath = csvPathElement ? csvPathElement.textContent.trim() : '/content/dam/fma/csv/omusubi3.csv';
 
   // 既存のコンテンツをクリアしてフォームを作成
   block.innerHTML = '';
