@@ -398,14 +398,16 @@ async function createNodesFromCSV(csvPath) {
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
     const name = row.name || row.Name || row.NAME || `item-${i}`;
-    const nodePath = `/content/fma/goods/omusubi/${name}`;
+    const category = row.category || 'omusubi'; // デフォルトはomusubi
+    const nodePath = `/content/fma/goods/${category}/${name}`;
 
     console.log(`\n--- Processing ${i + 1}/${data.length} ---`);
+    console.log(`Category: ${category}, Name: ${name}`);
 
     // 画像ファイルのコピー処理
     if (row.product_image) {
       const sourceImagePath = `${csvFolder}/${row.product_image}`;
-      const destImagePath = `/content/dam/fma/goods/omusubi/${row.product_image}`;
+      const destImagePath = `/content/dam/fma/goods/${category}/${row.product_image}`;
 
       const imageCopied = await copyImageFile(sourceImagePath, destImagePath, csrfToken);
       if (imageCopied) {
