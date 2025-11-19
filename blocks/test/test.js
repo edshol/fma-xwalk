@@ -168,6 +168,79 @@ async function createSectionNode(nodePath, csrfToken) {
   }
 }
 
+async function ensureImportedFolder(csvFolder, csrfToken) {
+  const importedFolderPath = `${csvFolder}/imported`;
+  console.log(`Checking if imported folder exists: ${importedFolderPath}`);
+
+  try {
+    // フォルダの存在確認
+    const checkResponse = await fetch(`${importedFolderPath}.json`);
+    if (checkResponse.ok) {
+      console.log('✓ Imported folder already exists');
+      return true;
+    }
+
+    // フォルダが存在しない場合は作成
+    console.log('Creating imported folder...');
+    const formData = new URLSearchParams();
+    formData.append('jcr:primaryType', 'sling:Folder');
+
+    const createResponse = await fetch(importedFolderPath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'CSRF-Token': csrfToken
+      },
+      body: formData.toString()
+    });
+
+    if (createResponse.ok) {
+      console.log('✓ Imported folder created successfully');
+      return true;
+    } else {
+      console.warn(`✗ Failed to create imported folder: ${createResponse.status}`);
+      return false;
+    }
+  } catch (error) {
+    console.warn('Error ensuring imported folder:', error);
+    return false;
+  }
+}
+
+async function moveImageToImported(sourcePath, csvFolder, csrfToken) {
+  const fileName = sourcePath.substring(sourcePath.lastIndexOf('/') + 1);
+  const importedPath = `${csvFolder}/imported/${fileName}`;
+  console.log(`Moving original image: ${sourcePath} → ${importedPath}`);
+
+  try {
+    const formData = new URLSearchParams();
+    formData.append(':operation', 'move');
+    formData.append(':dest', importedPath);
+    formData.append(':replace', 'true');
+    formData.append('_charset_', 'utf-8');
+
+    const response = await fetch(sourcePath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'CSRF-Token': csrfToken
+      },
+      body: formData.toString()
+    });
+
+    if (response.ok) {
+      console.log(`✓ Original image moved to imported folder: ${importedPath}`);
+      return true;
+    } else {
+      console.warn(`✗ Failed to move image to imported: ${response.status}`);
+      return false;
+    }
+  } catch (error) {
+    console.warn('Error moving image to imported:', error);
+    return false;
+  }
+}
+
 async function copyImageFile(sourcePath, destPath, csrfToken) {
   console.log(`Copying image: ${sourcePath} → ${destPath}`);
 
@@ -311,6 +384,9 @@ async function createNodesFromCSV(csvPath) {
   // CSVフォルダパスを取得
   const csvFolder = csvPath.substring(0, csvPath.lastIndexOf('/'));
 
+  // importedフォルダの存在を確認/作成
+  await ensureImportedFolder(csvFolder, csrfToken);
+
   const results = [];
 
   for (let i = 0; i < data.length; i++) {
@@ -329,6 +405,9 @@ async function createNodesFromCSV(csvPath) {
       if (imageCopied) {
         // コピー成功時はパスを更新
         row.product_image = destImagePath;
+
+        // 元のファイルをimportedフォルダに移動
+        await moveImageToImported(sourceImagePath, csvFolder, csrfToken);
       } else {
         // コピー失敗時は元のパスのまま続行
         console.warn(`Continuing with original image path: ${row.product_image}`);
