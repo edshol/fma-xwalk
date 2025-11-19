@@ -85,6 +85,7 @@ async function createJcrContentNode(nodePath, csrfToken) {
     const formData = new URLSearchParams();
     formData.append('jcr:primaryType', 'cq:PageContent');
     formData.append('sling:resourceType', 'core/franklin/components/page/v1/page');
+    formData.append('cq:template', '/libs/core/franklin/templates/page');
 
     const response = await fetch(nodePath, {
       method: 'POST',
