@@ -175,6 +175,7 @@ async function createBlockNode(nodePath, nodeData, csrfToken) {
     const formData = new URLSearchParams();
     formData.append('jcr:primaryType', 'nt:unstructured');
     formData.append('sling:resourceType', 'core/franklin/components/block/v1/block');
+    formData.append('model', 'product');
 
     // CSVのすべてのプロパティを追加
     Object.keys(nodeData).forEach(key => {
@@ -282,6 +283,7 @@ async function createNodesFromCSV(csvPath) {
 export default async function decorate(block) {
   console.log('=== TEST BLOCK DECORATE ===');
 
+  // フィールドからデフォルト値を取得
   const allPElements = Array.from(block.querySelectorAll('div > div > p'));
   const fieldNames = ['csvPath', 'result'];
 
@@ -292,13 +294,99 @@ export default async function decorate(block) {
   });
 
   const csvPathElement = block.querySelector('.csvPath');
+  const defaultCsvPath = csvPathElement ? csvPathElement.textContent.trim() : '/content/dam/fma/csv/omusubi2.csv';
 
-  if (csvPathElement) {
-    const csvPath = csvPathElement.textContent.trim();
-    console.log('CSV Path:', csvPath);
+  // 既存のコンテンツをクリアしてフォームを作成
+  block.innerHTML = '';
 
-    if (csvPath) {
-      await createNodesFromCSV(csvPath);
+  // フォームコンテナを作成
+  const formContainer = document.createElement('div');
+  formContainer.className = 'csv-import-container';
+
+  // フォーム作成
+  const form = document.createElement('form');
+  form.className = 'csv-import-form';
+
+  // フォームグループ作成
+  const formGroup = document.createElement('div');
+  formGroup.className = 'form-group';
+
+  // ラベル作成
+  const label = document.createElement('label');
+  label.setAttribute('for', 'csvPath');
+  label.textContent = 'CSV Path:';
+
+  // 入力フィールド作成
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.id = 'csvPath';
+  input.name = 'csvPath';
+  input.value = defaultCsvPath;
+  input.placeholder = 'Enter CSV path';
+
+  // Submitボタン作成
+  const submitBtn = document.createElement('button');
+  submitBtn.type = 'submit';
+  submitBtn.className = 'submit-btn';
+  submitBtn.textContent = 'Submit';
+
+  // 結果表示エリア作成
+  const resultArea = document.createElement('div');
+  resultArea.className = 'result-area';
+  resultArea.textContent = 'Ready to import CSV';
+
+  // フォーム組み立て
+  formGroup.appendChild(label);
+  formGroup.appendChild(input);
+  form.appendChild(formGroup);
+  form.appendChild(submitBtn);
+  formContainer.appendChild(form);
+  formContainer.appendChild(resultArea);
+  block.appendChild(formContainer);
+
+  // Submit イベントリスナー
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const csvPath = input.value.trim();
+
+    if (!csvPath) {
+      resultArea.textContent = 'Please enter a CSV path';
+      resultArea.className = 'result-area error';
+      return;
     }
-  }
+
+    // 処理中表示
+    resultArea.textContent = 'Processing...';
+    resultArea.className = 'result-area processing';
+    submitBtn.disabled = true;
+
+    try {
+      const results = await createNodesFromCSV(csvPath);
+
+      if (results) {
+        const successCount = results.filter(r => r.success).length;
+        const failCount = results.length - successCount;
+
+        resultArea.innerHTML = `
+          <strong>Complete!</strong><br>
+          ✓ Success: ${successCount} nodes<br>
+          ${failCount > 0 ? `✗ Failed: ${failCount} nodes<br>` : ''}
+          Total: ${results.length} nodes processed
+        `;
+        resultArea.className = 'result-area success';
+      } else {
+        resultArea.textContent = 'Failed to process CSV';
+        resultArea.className = 'result-area error';
+      }
+    } catch (error) {
+      console.error('Error during CSV import:', error);
+      resultArea.innerHTML = `
+        <strong>Error:</strong><br>
+        ${error.message || 'Unknown error occurred'}
+      `;
+      resultArea.className = 'result-area error';
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
 }
