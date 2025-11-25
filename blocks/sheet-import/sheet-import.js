@@ -638,8 +638,27 @@ async function createNodesFromSheet(spreadsheetUrl, imageFolderPath) {
 
 // ===== Block Decoration =====
 
+async function loadConfig() {
+  try {
+    const response = await fetch('/blocks/sheet-import/config.json');
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (error) {
+    console.warn('Failed to load config.json, using fallback defaults:', error);
+  }
+  // フォールバック
+  return {
+    defaultSpreadsheetUrl: '',
+    defaultImageFolderPath: '/content/dam/fma/csv/'
+  };
+}
+
 export default async function decorate(block) {
   console.log('=== SHEET IMPORT BLOCK DECORATE ===');
+
+  // 外部設定ファイルを読み込み
+  const config = await loadConfig();
 
   const allPElements = Array.from(block.querySelectorAll('div > div > p'));
   const fieldNames = ['spreadsheetUrl', 'imageFolderPath', 'result'];
@@ -653,8 +672,8 @@ export default async function decorate(block) {
   const urlElement = block.querySelector('.spreadsheetUrl');
   const pathElement = block.querySelector('.imageFolderPath');
 
-  const defaultUrl = urlElement ? urlElement.textContent.trim() : '';
-  const defaultPath = pathElement ? pathElement.textContent.trim() : '/content/dam/fma/csv/';
+  const defaultUrl = (urlElement && urlElement.textContent.trim()) || config.defaultSpreadsheetUrl;
+  const defaultPath = (pathElement && pathElement.textContent.trim()) || config.defaultImageFolderPath;
 
   block.innerHTML = '';
 
