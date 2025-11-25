@@ -660,20 +660,41 @@ export default async function decorate(block) {
   // 外部設定ファイルを読み込み
   const config = await loadConfig();
 
-  const allPElements = Array.from(block.querySelectorAll('div > div > p'));
-  const fieldNames = ['spreadsheetUrl', 'imageFolderPath', 'result'];
+  // ブロックのHTML構造をデバッグ出力
+  console.log('Block innerHTML:', block.innerHTML);
 
-  allPElements.forEach((pElement, index) => {
-    if (index < fieldNames.length) {
-      pElement.classList.add(fieldNames[index]);
+  // AEMブロックの行を取得（各行は div > div 構造）
+  const rows = Array.from(block.querySelectorAll(':scope > div'));
+  console.log('Found rows:', rows.length);
+  rows.forEach((row, i) => {
+    const cells = Array.from(row.querySelectorAll(':scope > div'));
+    cells.forEach((cell, j) => {
+      console.log(`Row ${i}, Cell ${j}: "${cell.textContent.trim()}"`);
+    });
+  });
+
+  // 各行の最初のセル（値）を取得
+  let spreadsheetUrlValue = '';
+  let imageFolderPathValue = '';
+
+  rows.forEach(row => {
+    const cells = Array.from(row.querySelectorAll(':scope > div'));
+    if (cells.length >= 1) {
+      const value = cells[0].textContent.trim();
+      // URLかパスかを判定
+      if (value.includes('docs.google.com') || value.includes('spreadsheets')) {
+        spreadsheetUrlValue = value;
+      } else if (value.startsWith('/content/')) {
+        imageFolderPathValue = value;
+      }
     }
   });
 
-  const urlElement = block.querySelector('.spreadsheetUrl');
-  const pathElement = block.querySelector('.imageFolderPath');
+  console.log('Detected spreadsheetUrl:', spreadsheetUrlValue);
+  console.log('Detected imageFolderPath:', imageFolderPathValue);
 
-  const defaultUrl = (urlElement && urlElement.textContent.trim()) || config.defaultSpreadsheetUrl;
-  const defaultPath = (pathElement && pathElement.textContent.trim()) || config.defaultImageFolderPath;
+  const defaultUrl = spreadsheetUrlValue || config.defaultSpreadsheetUrl;
+  const defaultPath = imageFolderPathValue || config.defaultImageFolderPath;
 
   block.innerHTML = '';
 
