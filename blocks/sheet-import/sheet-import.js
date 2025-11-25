@@ -355,28 +355,99 @@ async function ensureCategoryFolder(category, csrfToken) {
 
   console.log(`Ensuring category folders for: ${category}`);
 
+  // Content category page creation
   try {
     const checkContentResponse = await fetch(`${contentCategoryPath}.json`);
     if (!checkContentResponse.ok) {
-      console.log(`Creating content category folder: ${contentCategoryPath}`);
-      const formData = new URLSearchParams();
-      formData.append('jcr:primaryType', 'cq:Page');
+      // 1. Create cq:Page node
+      console.log(`Creating content category page: ${contentCategoryPath}`);
+      const pageFormData = new URLSearchParams();
+      pageFormData.append('jcr:primaryType', 'cq:Page');
 
-      const createResponse = await fetch(contentCategoryPath, {
+      const pageResponse = await fetch(contentCategoryPath, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'CSRF-Token': csrfToken
         },
-        body: formData.toString()
+        body: pageFormData.toString()
       });
 
-      if (createResponse.ok) {
-        console.log(`✓ Content category folder created: ${contentCategoryPath}`);
-      } else {
-        console.warn(`✗ Failed to create content category folder: ${createResponse.status}`);
+      if (!pageResponse.ok) {
+        console.warn(`✗ Failed to create category page: ${pageResponse.status}`);
         return false;
       }
+      console.log(`✓ Category cq:Page created: ${contentCategoryPath}`);
+
+      // 2. Create jcr:content node
+      const jcrContentPath = `${contentCategoryPath}/jcr:content`;
+      console.log(`Creating jcr:content node: ${jcrContentPath}`);
+      const jcrContentFormData = new URLSearchParams();
+      jcrContentFormData.append('jcr:primaryType', 'cq:PageContent');
+      jcrContentFormData.append('cq:template', '/libs/core/franklin/templates/page');
+      jcrContentFormData.append('sling:resourceType', 'core/franklin/components/page/v1/page');
+      jcrContentFormData.append('jcr:title', category);
+
+      const jcrContentResponse = await fetch(jcrContentPath, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'CSRF-Token': csrfToken
+        },
+        body: jcrContentFormData.toString()
+      });
+
+      if (!jcrContentResponse.ok) {
+        console.warn(`✗ Failed to create jcr:content: ${jcrContentResponse.status}`);
+        return false;
+      }
+      console.log(`✓ Category jcr:content created: ${jcrContentPath}`);
+
+      // 3. Create root node
+      const rootPath = `${jcrContentPath}/root`;
+      console.log(`Creating root node: ${rootPath}`);
+      const rootFormData = new URLSearchParams();
+      rootFormData.append('jcr:primaryType', 'nt:unstructured');
+      rootFormData.append('sling:resourceType', 'core/franklin/components/root/v1/root');
+
+      const rootResponse = await fetch(rootPath, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'CSRF-Token': csrfToken
+        },
+        body: rootFormData.toString()
+      });
+
+      if (!rootResponse.ok) {
+        console.warn(`✗ Failed to create root node: ${rootResponse.status}`);
+        return false;
+      }
+      console.log(`✓ Category root node created: ${rootPath}`);
+
+      // 4. Create section node
+      const sectionPath = `${rootPath}/section`;
+      console.log(`Creating section node: ${sectionPath}`);
+      const sectionFormData = new URLSearchParams();
+      sectionFormData.append('jcr:primaryType', 'nt:unstructured');
+      sectionFormData.append('sling:resourceType', 'core/franklin/components/section/v1/section');
+
+      const sectionResponse = await fetch(sectionPath, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'CSRF-Token': csrfToken
+        },
+        body: sectionFormData.toString()
+      });
+
+      if (!sectionResponse.ok) {
+        console.warn(`✗ Failed to create section node: ${sectionResponse.status}`);
+        return false;
+      }
+      console.log(`✓ Category section node created: ${sectionPath}`);
+
+      console.log(`✓ Complete category page structure created: ${contentCategoryPath}`);
     } else {
       console.log(`✓ Content category folder exists: ${contentCategoryPath}`);
     }
@@ -385,6 +456,7 @@ async function ensureCategoryFolder(category, csrfToken) {
     return false;
   }
 
+  // DAM category folder creation
   try {
     const checkDamResponse = await fetch(`${damCategoryPath}.json`);
     if (!checkDamResponse.ok) {
