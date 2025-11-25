@@ -1,7 +1,39 @@
 // ===== Utility Functions (from test.js) =====
 
 function parseCSV(csvText) {
-  const lines = csvText.split('\n').filter(line => line.trim());
+  // ダブルクォートで囲まれた部分の改行を<br>に変換
+  let processed = '';
+  let insideQuotes = false;
+
+  for (let i = 0; i < csvText.length; i++) {
+    const char = csvText[i];
+    const nextChar = csvText[i + 1];
+
+    if (char === '"') {
+      if (insideQuotes && nextChar === '"') {
+        // エスケープされた "" → " に変換
+        processed += '"';
+        i++;
+      } else {
+        // クォートの開始/終了（出力には含めない）
+        insideQuotes = !insideQuotes;
+      }
+    } else if (insideQuotes && (char === '\n' || char === '\r')) {
+      // クォート内の改行を<br>に変換
+      if (char === '\r' && nextChar === '\n') {
+        processed += '<br>';
+        i++; // \nをスキップ
+      } else if (char === '\n') {
+        processed += '<br>';
+      }
+      // \r単体は無視
+    } else {
+      processed += char;
+    }
+  }
+
+  // 通常のCSVパース
+  const lines = processed.split('\n').filter(line => line.trim());
   if (lines.length === 0) return [];
 
   const headers = lines[0].split(',').map(h => h.trim());
