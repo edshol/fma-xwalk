@@ -10,7 +10,7 @@
             "template": {
               "name": "sheet-import",
               "model": "sheet-import",
-              "spreadsheetUrl": "",
+              "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1TD-40noyeGt8D5dGOB86eHQlTsUB8GvzAiTAlXas1HQ/edit?gid=0#gid=0",
               "imageFolderPath": "/content/dam/fma/csv/",
               "result": ""
             }
@@ -26,7 +26,7 @@
         {
           "component": "text",
           "valueType": "string",
-          "value": "",
+          "value": "https://docs.google.com/spreadsheets/d/1TD-40noyeGt8D5dGOB86eHQlTsUB8GvzAiTAlXas1HQ/edit?gid=0#gid=0",
           "name": "spreadsheetUrl",
           "label": "Google Spreadsheet URL"
         },

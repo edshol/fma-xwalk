@@ -304,7 +304,7 @@
         "valueType": "string",
         "name": "spreadsheetUrl",
         "label": "Google Spreadsheet URL",
-        "value": ""
+        "value": "https://docs.google.com/spreadsheets/d/1TD-40noyeGt8D5dGOB86eHQlTsUB8GvzAiTAlXas1HQ/edit?gid=0#gid=0"
       },
       {
         "component": "text",
