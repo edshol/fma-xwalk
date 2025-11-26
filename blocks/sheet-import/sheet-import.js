@@ -238,6 +238,7 @@ async function createBlockNode(nodePath, nodeData, csrfToken) {
 
   // Google Sheetのカラム順でプロパティを追加（JCRの格納順を制御）
   const modelFieldOrder = [
+    'category',
     'release_region',
     'release_date',
     'product_title',

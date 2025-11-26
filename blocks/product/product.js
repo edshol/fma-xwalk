@@ -56,8 +56,10 @@ function decorateReleaseRegion(row) {
 
 /**
  * 画像の装飾処理
+ * @param {Element} row - 画像行要素
+ * @param {string} category - カテゴリ名
  */
-function decorateProductImage(row) {
+function decorateProductImage(row, category) {
   const contentCell = row.querySelector(':scope > div');
   if (!contentCell) return;
 
@@ -66,7 +68,13 @@ function decorateProductImage(row) {
 
   // 画像要素を作成
   const img = document.createElement('img');
-  img.src = imgPath.startsWith('/') ? imgPath : `/content/dam/fma/goods/${imgPath}`;
+  // フルパスの場合はそのまま、ファイル名だけの場合はcategoryを含むパスを構築
+  if (imgPath.startsWith('/')) {
+    img.src = imgPath;
+  } else {
+    const cat = category || 'omusubi';
+    img.src = `/content/dam/fma/goods/${cat}/${imgPath}`;
+  }
   img.alt = 'Product Image';
   img.className = 'product-img';
 
@@ -142,7 +150,7 @@ function decorateRemarks(row) {
 }
 
 export default function decorate(block) {
-  // 表示したい順序
+  // 表示したい順序（categoryは表示しないがデータ取得用に使う）
   const displayOrder = [
     'release_region',
     'product_title',
@@ -157,15 +165,22 @@ export default function decorate(block) {
   // data-aue-prop属性を持つすべての要素を取得
   const fields = block.querySelectorAll('[data-aue-prop]');
 
-  // ブロックの内容をクリアして再構築
-  block.innerHTML = '';
-
-  // フィールドをマップに格納
+  // フィールドをマップに格納（categoryも含めて取得）
   const fieldMap = {};
   fields.forEach((field) => {
     const propName = field.getAttribute('data-aue-prop');
     fieldMap[propName] = field.cloneNode(true);
   });
+
+  // categoryの値を取得
+  let category = '';
+  if (fieldMap.category) {
+    category = fieldMap.category.textContent.trim().toLowerCase();
+  }
+  console.log('Category from block:', category);
+
+  // ブロックの内容をクリアして再構築
+  block.innerHTML = '';
 
   // 表示順に行を作成
   displayOrder.forEach((fieldName) => {
@@ -190,7 +205,7 @@ export default function decorate(block) {
 
   const productImageRow = block.querySelector('.product_image');
   if (productImageRow) {
-    decorateProductImage(productImageRow);
+    decorateProductImage(productImageRow, category);
   }
 
   const releaseDateRow = block.querySelector('.release_date');

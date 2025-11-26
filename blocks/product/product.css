@@ -4,7 +4,7 @@
 .product {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto auto auto auto auto auto auto;
   gap: 1rem;
   max-width: 1200px;
   margin: 0 auto;
@@ -24,7 +24,7 @@
 /* 画像 - 左カラム */
 .product .product_image {
   grid-column: 1;
-  grid-row: 3 / 7;
+  grid-row: 3 / span 5;
 }
 
 /* 右カラムのコンテンツ */
@@ -72,7 +72,7 @@
 }
 
 .product .region-tag.active {
-  background-color: #4caf50;
+  background-color: #007DB8;
   color: #fff;
 }
 
@@ -87,7 +87,7 @@
   font-weight: bold;
   color: #333;
   padding-bottom: 0.5rem;
-  border-bottom: 4px solid #4caf50;
+  border-bottom: 4px solid #007DB8;
   margin-bottom: 1.5rem;
 }
 
