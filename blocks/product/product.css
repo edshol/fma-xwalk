@@ -1,82 +1,37 @@
 .product {
-  padding: 2rem;
-  max-width: 800px;
+  padding: 1rem 2rem 2rem;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
-.product > div {
-  margin-bottom: 1rem;
-}
-
-/* Product Title */
-.product .product_title {
-  position: relative;
-  box-sizing: border-box;
-  margin: 10px 0 30px 0;
-  border-bottom: 6px solid #1bac4a;
-  padding: 0 0 10px 0;
-  font-size: 2.1rem;
-  font-family: "Noto Sans JP";
-  font-weight: 600;
-  line-height: 1.5;
-  text-shadow: 0px 0px 0.1px rgba(51, 51, 51, 0.5);
-}
-
-/* Product Description */
-.product .product_descr {
-  margin-bottom: 1rem;
-}
-
-.product .product_descr {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #666;
-}
-
-/* Product Price */
-.product .product_price {
-  margin-top: 1rem;
-}
-
-.product .product_price {
-  font-size: 1.75rem;
-  font-weight: bold;
-  color: #e74c3c;
-}
-
-/* Release Region */
+/* Release Region - 発売地域タグ */
 .product .release_region {
   margin-bottom: 1rem;
 }
 
-.product .release_region-value {
-  font-size: 1rem;
-  color: #555;
-  font-style: italic;
-}
-
-/* Release Region Tags */
 .product .release-region-container {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.product .region-tag {
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
+.product .release-region-label {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #333;
+  border-radius: 3px;
+  font-size: 0.85rem;
   font-weight: 500;
-  display: inline-block;
+  color: #333;
+  background: #fff;
 }
 
-.product .region-tag .region-value {
-  font-size: 0;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  position: absolute;
-  overflow: hidden;
+.product .region-tag {
+  padding: 0.3rem 0.8rem;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-block;
 }
 
 .product .region-tag.active {
@@ -89,22 +44,36 @@
   color: #757575;
 }
 
-/* Two Column Layout */
+/* Product Title - 商品タイトル */
+.product .product_title {
+  position: relative;
+  box-sizing: border-box;
+  margin: 0.5rem 0 1.5rem 0;
+  border-bottom: 5px solid #1bac4a;
+  padding: 0 0 0.5rem 0;
+  font-size: 1.8rem;
+  font-family: "Noto Sans JP", sans-serif;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #333;
+}
+
+/* Two Column Layout - 2列レイアウト */
 .product .product-two-column {
   display: flex;
   gap: 2rem;
-  margin-top: 2rem;
 }
 
 .product .product-left-column {
-  flex: 0 0 40%;
+  flex: 0 0 45%;
+  max-width: 45%;
 }
 
 .product .product-right-column {
   flex: 1;
 }
 
-/* Product Image */
+/* Product Image - 商品画像 */
 .product .product_image {
   margin: 0;
 }
@@ -113,40 +82,87 @@
 .product .product_image picture img {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: block;
 }
 
-/* Release Date */
-.product .release_date {
-  margin-top: 1rem;
-}
-
-.product .release_date-value {
+/* Product Description - 商品説明 */
+.product .product_descr {
   font-size: 1rem;
-  color: #777;
-  font-weight: 500;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 1rem;
 }
 
-/* Remarks */
-.product .remarks {
-  margin-top: 1rem;
+.product .product_descr p {
+  margin: 0;
 }
 
-.product .remarks {
+/* Release Date - 発売日 */
+.product .release_date {
+  margin-bottom: 1rem;
+}
+
+.product .release-date-container {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* Product Price - 価格 */
+.product .product_price {
+  margin-bottom: 1.5rem;
+}
+
+.product .price-container {
+  margin: 0;
+}
+
+.product .price-label {
   font-size: 0.9rem;
   color: #666;
-  font-style: italic;
+  margin-bottom: 0.25rem;
 }
 
-/* Allergy */
-.product .allergy {
-  margin-top: 1rem;
+.product .price-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
 }
 
-.product .allergy {
-  font-size: 0.9rem;
-  color: #e67e22;
+/* Remarks - 備考 */
+.product .remarks {
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.product .remarks::before {
+  content: "【備考】";
+  display: block;
   font-weight: 600;
+  margin-bottom: 0.25rem;
 }
 
+/* Allergy - アレルギー */
+.product .allergy {
+  font-size: 0.85rem;
+  color: #c00;
+  line-height: 1.6;
+}
+
+/* Responsive - レスポンシブ対応 */
+@media (max-width: 768px) {
+  .product .product-two-column {
+    flex-direction: column;
+  }
+
+  .product .product-left-column {
+    flex: none;
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  .product .product_title {
+    font-size: 1.4rem;
+  }
+}

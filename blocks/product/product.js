@@ -3,13 +3,19 @@ function decorateReleaseRegion(element) {
   if (!text) return;
 
   // スラッシュで分割
-  const regions = text.split('/').filter(r => r.trim());
+  const regions = text.split('/').filter((r) => r.trim());
 
   // コンテナを作成
   const container = document.createElement('div');
   container.className = 'release-region-container';
 
-  regions.forEach(region => {
+  // 「発売地域」ラベル
+  const label = document.createElement('span');
+  label.className = 'release-region-label';
+  label.textContent = '発売地域';
+  container.appendChild(label);
+
+  regions.forEach((region) => {
     // "地域名:値" の形式をパース
     const parts = region.split(':');
     if (parts.length === 2) {
@@ -20,18 +26,8 @@ function decorateReleaseRegion(element) {
       const tag = document.createElement('span');
       tag.className = 'region-tag';
 
-      // 地域名を表示用spanに
-      const nameSpan = document.createElement('span');
-      nameSpan.className = 'region-name';
-      nameSpan.textContent = name;
-
-      // 値を非表示用spanに（データとして保持）
-      const valueSpan = document.createElement('span');
-      valueSpan.className = 'region-value';
-      valueSpan.innerHTML = ':' + value + '&#47;';
-
-      tag.appendChild(nameSpan);
-      tag.appendChild(valueSpan);
+      // 地域名を表示
+      tag.textContent = name;
 
       // 値が1なら水色背景、0ならグレー背景
       if (value === '1') {
@@ -60,8 +56,45 @@ function decorateProductPrice(element) {
   // 8%の消費税を加算
   const taxIncludedPrice = Math.floor(price * 1.08);
 
-  // フォーマット: XXX円(税込XXX円)
-  element.textContent = `${price}円(税込${taxIncludedPrice}円)`;
+  // コンテナを作成
+  const container = document.createElement('div');
+  container.className = 'price-container';
+
+  // ラベル
+  const label = document.createElement('div');
+  label.className = 'price-label';
+  label.textContent = 'ファミリーマート通常価格';
+  container.appendChild(label);
+
+  // 価格
+  const priceEl = document.createElement('div');
+  priceEl.className = 'price-value';
+  priceEl.textContent = `${price}円（税込${taxIncludedPrice}円）`;
+  container.appendChild(priceEl);
+
+  element.textContent = '';
+  element.appendChild(container);
+}
+
+function decorateReleaseDate(element) {
+  const text = element.textContent.trim();
+  if (!text) return;
+
+  // コンテナを作成
+  const container = document.createElement('div');
+  container.className = 'release-date-container';
+
+  // ラベルと値を整形
+  container.textContent = `発売日：${text.replace(/-/g, '年').replace(/-/g, '月')}`;
+
+  // 日付を日本語形式に変換 (2025-11-25 → 2025年11月25日)
+  const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    container.textContent = `発売日：${match[1]}年${parseInt(match[2], 10)}月${parseInt(match[3], 10)}日`;
+  }
+
+  element.textContent = '';
+  element.appendChild(container);
 }
 
 export default function decorate(block) {
@@ -75,62 +108,85 @@ export default function decorate(block) {
     'product_price',
     'release_date',
     'remarks',
-    'allergy'
+    'allergy',
   ];
 
-  // 各行（div > div構造）の最初のセルにクラスを付与
+  // フィールドデータを格納するマップ
+  const fieldElements = new Map();
+
+  // 各行（div > div構造）を処理
   const rows = Array.from(block.querySelectorAll(':scope > div'));
 
   rows.forEach((row, index) => {
-    const contentCell = row.querySelector(':scope > div');
-    if (contentCell && index < modelFieldOrder.length) {
+    if (index < modelFieldOrder.length) {
       const fieldName = modelFieldOrder[index];
-      contentCell.classList.add(fieldName);
-
-      // release_regionの場合は特別処理
-      if (fieldName === 'release_region') {
-        decorateReleaseRegion(contentCell);
-      }
-
-      // product_priceの場合は価格フォーマット処理
-      if (fieldName === 'product_price') {
-        decorateProductPrice(contentCell);
-      }
+      // 行自体にクラスを付与
+      row.classList.add(fieldName);
+      fieldElements.set(fieldName, row);
     }
   });
 
-  // 2列レイアウト用のコンテナを作成
-  const productImage = block.querySelector('.product_image');
-  const productDescr = block.querySelector('.product_descr');
-  const productPrice = block.querySelector('.product_price');
-  const remarks = block.querySelector('.remarks');
-  const allergy = block.querySelector('.allergy');
-
-  if (productImage && productDescr) {
-    // 2列コンテナを作成
-    const twoColumnContainer = document.createElement('div');
-    twoColumnContainer.className = 'product-two-column';
-
-    // 左列（画像）
-    const leftColumn = document.createElement('div');
-    leftColumn.className = 'product-left-column';
-    leftColumn.appendChild(productImage);
-
-    // 右列（説明、価格、備考、アレルギー）
-    const rightColumn = document.createElement('div');
-    rightColumn.className = 'product-right-column';
-    if (productDescr) rightColumn.appendChild(productDescr);
-    if (productPrice) rightColumn.appendChild(productPrice);
-    if (remarks) rightColumn.appendChild(remarks);
-    if (allergy) rightColumn.appendChild(allergy);
-
-    twoColumnContainer.appendChild(leftColumn);
-    twoColumnContainer.appendChild(rightColumn);
-
-    // product_titleの後に挿入
-    const productTitle = block.querySelector('.product_title');
-    if (productTitle && productTitle.parentElement) {
-      productTitle.parentElement.insertAdjacentElement('afterend', twoColumnContainer);
-    }
+  // 各フィールドの装飾処理
+  const releaseRegionRow = fieldElements.get('release_region');
+  if (releaseRegionRow) {
+    decorateReleaseRegion(releaseRegionRow);
   }
+
+  const productPriceRow = fieldElements.get('product_price');
+  if (productPriceRow) {
+    decorateProductPrice(productPriceRow);
+  }
+
+  const releaseDateRow = fieldElements.get('release_date');
+  if (releaseDateRow) {
+    decorateReleaseDate(releaseDateRow);
+  }
+
+  // レイアウト再構築
+  block.innerHTML = '';
+
+  // 1. 発売地域
+  if (fieldElements.get('release_region')) {
+    block.appendChild(fieldElements.get('release_region'));
+  }
+
+  // 2. 商品タイトル
+  if (fieldElements.get('product_title')) {
+    block.appendChild(fieldElements.get('product_title'));
+  }
+
+  // 3. 2列レイアウト（画像 + 詳細）
+  const twoColumnContainer = document.createElement('div');
+  twoColumnContainer.className = 'product-two-column';
+
+  // 左列（画像）
+  const leftColumn = document.createElement('div');
+  leftColumn.className = 'product-left-column';
+  if (fieldElements.get('product_image')) {
+    leftColumn.appendChild(fieldElements.get('product_image'));
+  }
+
+  // 右列（説明、発売日、価格、備考、アレルギー）
+  const rightColumn = document.createElement('div');
+  rightColumn.className = 'product-right-column';
+
+  if (fieldElements.get('product_descr')) {
+    rightColumn.appendChild(fieldElements.get('product_descr'));
+  }
+  if (fieldElements.get('release_date')) {
+    rightColumn.appendChild(fieldElements.get('release_date'));
+  }
+  if (fieldElements.get('product_price')) {
+    rightColumn.appendChild(fieldElements.get('product_price'));
+  }
+  if (fieldElements.get('remarks')) {
+    rightColumn.appendChild(fieldElements.get('remarks'));
+  }
+  if (fieldElements.get('allergy')) {
+    rightColumn.appendChild(fieldElements.get('allergy'));
+  }
+
+  twoColumnContainer.appendChild(leftColumn);
+  twoColumnContainer.appendChild(rightColumn);
+  block.appendChild(twoColumnContainer);
 }
