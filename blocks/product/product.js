@@ -65,37 +65,16 @@ function decorateProductPrice(element) {
 }
 
 export default function decorate(block) {
-  // モデル定義での正しい順序（_product.json の fields 順）
-  const modelFieldOrder = [
-    'release_region',
-    'product_title',
-    'product_image',
-    'product_descr',
-    'product_price',
-    'release_date',
-    'remarks',
-    'allergy'
-  ];
-
-  // 各行（div > div > div構造）の最初のセルにクラスを付与
-  // AEMの出力順をそのまま使用（並び替えなし）
+  // デバッグ: AEMの出力順を確認
   const rows = Array.from(block.querySelectorAll(':scope > div'));
-
+  console.log('=== AEM Output Order ===');
   rows.forEach((row, index) => {
     const contentCell = row.querySelector(':scope > div');
-    if (contentCell && index < modelFieldOrder.length) {
-      const fieldName = modelFieldOrder[index];
-      contentCell.classList.add(fieldName);
-
-      // release_regionの場合は特別処理
-      if (fieldName === 'release_region') {
-        decorateReleaseRegion(contentCell);
-      }
-
-      // product_priceの場合は価格フォーマット処理
-      if (fieldName === 'product_price') {
-        decorateProductPrice(contentCell);
-      }
+    if (contentCell) {
+      const text = contentCell.textContent.trim().substring(0, 50);
+      console.log(`Row ${index}: "${text}..."`);
     }
   });
+
+  // 処理なし - AEMの素の出力をそのまま表示
 }
