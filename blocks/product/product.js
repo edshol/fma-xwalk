@@ -49,18 +49,6 @@ function decorateReleaseRegion(row) {
 }
 
 export default function decorate(block) {
-  // JCRから出力される順序（sheet-importerのimport順）
-  const jcrFieldOrder = [
-    'release_region',
-    'release_date',
-    'product_title',
-    'product_descr',
-    'product_price',
-    'remarks',
-    'allergy',
-    'product_image',
-  ];
-
   // 表示したい順序
   const displayOrder = [
     'release_region',
@@ -73,28 +61,34 @@ export default function decorate(block) {
     'allergy',
   ];
 
-  const rows = Array.from(block.querySelectorAll(':scope > div'));
-
   console.log('=== Product Block Debug ===');
-  console.log('Block HTML:', block.innerHTML);
-  console.log('Total rows:', rows.length);
 
-  // JCR順でクラスを付与
-  rows.forEach((row, index) => {
-    if (index < jcrFieldOrder.length) {
-      const fieldName = jcrFieldOrder[index];
-      row.classList.add(fieldName);
+  // data-aue-prop属性を持つすべての要素を取得
+  const fields = block.querySelectorAll('[data-aue-prop]');
+  console.log('Found fields:', fields.length);
 
-      const contentCell = row.querySelector(':scope > div');
-      const text = contentCell ? contentCell.textContent.trim().substring(0, 30) : '(no cell)';
-      console.log(`Row ${index}: class="${fieldName}", content="${text}..."`);
-    }
+  // ブロックの内容をクリアして再構築
+  block.innerHTML = '';
+
+  // フィールドをマップに格納
+  const fieldMap = {};
+  fields.forEach((field) => {
+    const propName = field.getAttribute('data-aue-prop');
+    fieldMap[propName] = field.cloneNode(true);
+    console.log(`Field: ${propName}`);
   });
 
-  // 表示順に並べ替え
+  // 表示順に行を作成
   displayOrder.forEach((fieldName) => {
-    const row = block.querySelector(`.${fieldName}`);
-    if (row) {
+    const field = fieldMap[fieldName];
+    if (field) {
+      const row = document.createElement('div');
+      row.className = fieldName;
+
+      const cell = document.createElement('div');
+      cell.appendChild(field);
+      row.appendChild(cell);
+
       block.appendChild(row);
     }
   });
