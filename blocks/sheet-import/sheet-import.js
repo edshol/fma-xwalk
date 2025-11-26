@@ -236,16 +236,16 @@ async function createBlockNode(nodePath, nodeData, csrfToken) {
   console.log('Creating block node with data:', nodePath);
   console.log('Data received:', nodeData);
 
-  // モデル定義順でプロパティを追加（JCRの格納順を制御）
+  // Google Sheetのカラム順でプロパティを追加（JCRの格納順を制御）
   const modelFieldOrder = [
     'release_region',
+    'release_date',
     'product_title',
-    'product_image',
     'product_descr',
     'product_price',
-    'release_date',
     'remarks',
-    'allergy'
+    'allergy',
+    'product_image'
   ];
 
   try {

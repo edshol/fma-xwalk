@@ -49,8 +49,20 @@ function decorateReleaseRegion(row) {
 }
 
 export default function decorate(block) {
-  // モデル定義順（sheet-importerのimport順と一致）
-  const modelFieldOrder = [
+  // JCRから出力される順序（sheet-importerのimport順）
+  const jcrFieldOrder = [
+    'release_region',
+    'release_date',
+    'product_title',
+    'product_descr',
+    'product_price',
+    'remarks',
+    'allergy',
+    'product_image',
+  ];
+
+  // 表示したい順序
+  const displayOrder = [
     'release_region',
     'product_title',
     'product_image',
@@ -66,15 +78,23 @@ export default function decorate(block) {
   console.log('=== Product Block Debug ===');
   console.log('Total rows:', rows.length);
 
-  // インポート順序に基づいてクラスを付与
+  // JCR順でクラスを付与
   rows.forEach((row, index) => {
-    if (index < modelFieldOrder.length) {
-      const fieldName = modelFieldOrder[index];
+    if (index < jcrFieldOrder.length) {
+      const fieldName = jcrFieldOrder[index];
       row.classList.add(fieldName);
 
       const contentCell = row.querySelector(':scope > div');
       const text = contentCell ? contentCell.textContent.trim().substring(0, 30) : '(no cell)';
       console.log(`Row ${index}: class="${fieldName}", content="${text}..."`);
+    }
+  });
+
+  // 表示順に並べ替え
+  displayOrder.forEach((fieldName) => {
+    const row = block.querySelector(`.${fieldName}`);
+    if (row) {
+      block.appendChild(row);
     }
   });
 
