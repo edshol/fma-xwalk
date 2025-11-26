@@ -247,6 +247,10 @@ async function createBlockNode(nodePath, nodeData, csrfToken) {
       console.log(`Processing field: ${key} = ${nodeData[key]}`);
       if (key === 'name') {
         formData.append('jcr:title', nodeData[key]);
+      } else if (key === 'product_descr') {
+        // product_descrは<p>タグで囲む
+        const value = nodeData[key];
+        formData.append(key, `<p>${value}</p>`);
       } else {
         formData.append(key, nodeData[key]);
       }
