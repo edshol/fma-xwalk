@@ -63,10 +63,21 @@ function decorateProductImage(row, category) {
   const contentCell = row.querySelector(':scope > div');
   if (!contentCell) return;
 
+  // 既にpicture/img要素がある場合（Edge Delivery環境）はそのまま使用
+  const existingPicture = contentCell.querySelector('picture');
+  const existingImg = contentCell.querySelector('img');
+  if (existingPicture || existingImg) {
+    // 既存の画像にクラスを追加
+    if (existingImg) {
+      existingImg.className = 'product-img';
+    }
+    return;
+  }
+
+  // テキストパスの場合（AEM Author環境）は画像要素を作成
   const imgPath = contentCell.textContent.trim();
   if (!imgPath) return;
 
-  // 画像要素を作成
   const img = document.createElement('img');
   // フルパスの場合はそのまま、ファイル名だけの場合はcategoryを含むパスを構築
   if (imgPath.startsWith('/')) {
@@ -168,9 +179,8 @@ export default function decorate(block) {
   const fieldMap = {};
   let category = '';
 
-  // data-aue-prop（AEM Author環境）または data-field（aem.live/aem.page環境）でフィールドを取得
+  // data-aue-prop（AEM Author環境）でフィールドを取得
   const aueFields = block.querySelectorAll('[data-aue-prop]');
-  const dataFields = block.querySelectorAll('[data-field]');
 
   if (aueFields.length > 0) {
     // AEM Author環境: data-aue-prop属性でフィールドを識別
@@ -179,18 +189,69 @@ export default function decorate(block) {
       const propName = field.getAttribute('data-aue-prop');
       fieldMap[propName] = field.cloneNode(true);
     });
-  } else if (dataFields.length > 0) {
-    // aem.live/aem.page環境: data-field属性でフィールドを識別
-    console.log('Using Edge Delivery mode (data-field)');
-    dataFields.forEach((field) => {
-      const fieldName = field.getAttribute('data-field');
-      fieldMap[fieldName] = field.cloneNode(true);
-    });
-  }
+    // categoryの値を取得
+    if (fieldMap.category) {
+      category = fieldMap.category.textContent.trim().toLowerCase();
+    }
+  } else {
+    // aem.live/aem.page環境: 行/セル構造からフィールドを取得
+    console.log('Using Edge Delivery mode (row-based)');
 
-  // categoryの値を取得
-  if (fieldMap.category) {
-    category = fieldMap.category.textContent.trim().toLowerCase();
+    const rows = Array.from(block.querySelectorAll(':scope > div'));
+    console.log('Found rows:', rows.length);
+
+    // Edge Deliveryの出力構造を解析
+    // Row 0: release_region, release_date
+    // Row 1: product_title, product_image, product_descr, product_price
+    // Row 2: remarks
+    // Row 3: allergy
+
+    if (rows.length >= 4) {
+      // Row 0
+      const row0Cells = rows[0].querySelectorAll(':scope > div > p');
+      if (row0Cells.length >= 1) {
+        const releaseRegionP = document.createElement('p');
+        releaseRegionP.textContent = row0Cells[0]?.textContent || '';
+        fieldMap.release_region = releaseRegionP;
+      }
+      if (row0Cells.length >= 2) {
+        const releaseDateP = document.createElement('p');
+        // ISO日付形式を YYYY-MM-DD に変換
+        const dateText = row0Cells[1]?.textContent || '';
+        const dateMatch = dateText.match(/(\d{4})-(\d{2})-(\d{2})/);
+        releaseDateP.textContent = dateMatch ? `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}` : dateText;
+        fieldMap.release_date = releaseDateP;
+      }
+
+      // Row 1
+      const row1Container = rows[1].querySelector(':scope > div');
+      if (row1Container) {
+        const row1Elements = Array.from(row1Container.children);
+        row1Elements.forEach((el, idx) => {
+          if (idx === 0) {
+            fieldMap.product_title = el.cloneNode(true);
+          } else if (el.tagName === 'P' && el.querySelector('picture')) {
+            fieldMap.product_image = el.cloneNode(true);
+          } else if (idx === 2) {
+            fieldMap.product_descr = el.cloneNode(true);
+          } else if (idx === 3) {
+            fieldMap.product_price = el.cloneNode(true);
+          }
+        });
+      }
+
+      // Row 2: remarks
+      const row2Content = rows[2].querySelector(':scope > div');
+      if (row2Content) {
+        fieldMap.remarks = row2Content.cloneNode(true);
+      }
+
+      // Row 3: allergy
+      const row3Content = rows[3].querySelector(':scope > div');
+      if (row3Content) {
+        fieldMap.allergy = row3Content.cloneNode(true);
+      }
+    }
   }
 
   console.log('Category:', category);
