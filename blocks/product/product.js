@@ -82,8 +82,8 @@ export default function decorate(block) {
     'release_region',
     'release_date',
     'product_title',
-    'product_descr',
     'product_image',
+    'product_descr',
     'product_price',
     'remarks',
     'allergy'
