@@ -76,6 +76,7 @@ export default function decorate(block) {
   const rows = Array.from(block.querySelectorAll(':scope > div'));
 
   console.log('=== Product Block Debug ===');
+  console.log('Block HTML:', block.innerHTML);
   console.log('Total rows:', rows.length);
 
   // JCR順でクラスを付与
