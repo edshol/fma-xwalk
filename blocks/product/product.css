@@ -5,7 +5,7 @@
 }
 
 /* Release Region - 発売地域タグ */
-.product .release_region {
+.product > .release_region {
   margin-bottom: 1rem;
 }
 
@@ -45,7 +45,7 @@
 }
 
 /* Product Title - 商品タイトル */
-.product .product_title {
+.product > .product_title {
   position: relative;
   box-sizing: border-box;
   margin: 0.5rem 0 1.5rem 0;
@@ -100,9 +100,6 @@
 /* Release Date - 発売日 */
 .product .release_date {
   margin-bottom: 1rem;
-}
-
-.product .release-date-container {
   font-size: 0.95rem;
   color: #333;
 }
@@ -136,13 +133,6 @@
   line-height: 1.6;
 }
 
-.product .remarks::before {
-  content: "【備考】";
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
 /* Allergy - アレルギー */
 .product .allergy {
   font-size: 0.85rem;
@@ -162,7 +152,7 @@
     margin-bottom: 1.5rem;
   }
 
-  .product .product_title {
+  .product > .product_title {
     font-size: 1.4rem;
   }
 }

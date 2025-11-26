@@ -1,5 +1,9 @@
-function decorateReleaseRegion(element) {
-  const text = element.textContent.trim();
+function decorateReleaseRegion(row) {
+  // 行内のコンテンツセルを取得
+  const contentCell = row.querySelector(':scope > div');
+  if (!contentCell) return;
+
+  const text = contentCell.textContent.trim();
   if (!text) return;
 
   // スラッシュで分割
@@ -41,12 +45,16 @@ function decorateReleaseRegion(element) {
   });
 
   // 元のテキストを置き換え
-  element.textContent = '';
-  element.appendChild(container);
+  contentCell.textContent = '';
+  contentCell.appendChild(container);
 }
 
-function decorateProductPrice(element) {
-  const text = element.textContent.trim();
+function decorateProductPrice(row) {
+  // 行内のコンテンツセルを取得
+  const contentCell = row.querySelector(':scope > div');
+  if (!contentCell) return;
+
+  const text = contentCell.textContent.trim();
   if (!text) return;
 
   // 数値を取得
@@ -72,32 +80,38 @@ function decorateProductPrice(element) {
   priceEl.textContent = `${price}円（税込${taxIncludedPrice}円）`;
   container.appendChild(priceEl);
 
-  element.textContent = '';
-  element.appendChild(container);
+  contentCell.textContent = '';
+  contentCell.appendChild(container);
 }
 
-function decorateReleaseDate(element) {
-  const text = element.textContent.trim();
+function decorateReleaseDate(row) {
+  // 行内のコンテンツセルを取得
+  const contentCell = row.querySelector(':scope > div');
+  if (!contentCell) return;
+
+  const text = contentCell.textContent.trim();
   if (!text) return;
-
-  // コンテナを作成
-  const container = document.createElement('div');
-  container.className = 'release-date-container';
-
-  // ラベルと値を整形
-  container.textContent = `発売日：${text.replace(/-/g, '年').replace(/-/g, '月')}`;
 
   // 日付を日本語形式に変換 (2025-11-25 → 2025年11月25日)
   const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (match) {
-    container.textContent = `発売日：${match[1]}年${parseInt(match[2], 10)}月${parseInt(match[3], 10)}日`;
+    contentCell.textContent = `発売日：${match[1]}年${parseInt(match[2], 10)}月${parseInt(match[3], 10)}日`;
+  } else {
+    contentCell.textContent = `発売日：${text}`;
   }
-
-  element.textContent = '';
-  element.appendChild(container);
 }
 
 export default function decorate(block) {
+  // デバッグ: AEMの出力構造を確認
+  console.log('=== Product Block Debug ===');
+  const rows = Array.from(block.querySelectorAll(':scope > div'));
+  console.log('Total rows:', rows.length);
+  rows.forEach((row, i) => {
+    const cell = row.querySelector(':scope > div');
+    const text = cell ? cell.textContent.trim().substring(0, 30) : '(no cell)';
+    console.log(`Row ${i}: "${text}..."`);
+  });
+
   // モデル定義での正しい順序（_product.json の fields 順）
   // sheet-importerのimport順と一致している必要がある
   const modelFieldOrder = [
@@ -114,15 +128,14 @@ export default function decorate(block) {
   // フィールドデータを格納するマップ
   const fieldElements = new Map();
 
-  // 各行（div > div構造）を処理
-  const rows = Array.from(block.querySelectorAll(':scope > div'));
-
+  // 各行を処理
   rows.forEach((row, index) => {
     if (index < modelFieldOrder.length) {
       const fieldName = modelFieldOrder[index];
       // 行自体にクラスを付与
       row.classList.add(fieldName);
       fieldElements.set(fieldName, row);
+      console.log(`Mapped: ${fieldName} -> Row ${index}`);
     }
   });
 
