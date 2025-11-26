@@ -77,91 +77,25 @@ export default function decorate(block) {
     'allergy'
   ];
 
-  // AEM出力順序に対応するフィールド名（現在のDOM順序）
-  const aemOutputOrder = [
-    'release_region',
-    'release_date',
-    'product_title',
-    'product_image',
-    'product_descr',
-    'product_price',
-    'remarks',
-    'allergy'
-  ];
-
-  // 各行（div > div）を取得
+  // 各行（div > div > div構造）の最初のセルにクラスを付与
+  // AEMの出力順をそのまま使用（並び替えなし）
   const rows = Array.from(block.querySelectorAll(':scope > div'));
 
-  // AEM出力順序でフィールド名と行をマッピング
-  const rowMap = new Map();
   rows.forEach((row, index) => {
-    if (index < aemOutputOrder.length) {
-      rowMap.set(aemOutputOrder[index], row);
-    }
-  });
-
-  // モデル定義順にDOMを並び替え
-  block.innerHTML = '';
-  modelFieldOrder.forEach(fieldName => {
-    const row = rowMap.get(fieldName);
-    if (row) {
-      block.appendChild(row);
-    }
-  });
-
-  // すべてのp要素を取得（並び替え後の順序で）
-  const allPElements = Array.from(block.querySelectorAll('div > div > p'));
-
-  // 各p要素にフィールド名のクラスを付与（モデル定義順）
-  allPElements.forEach((pElement, index) => {
-    if (index < modelFieldOrder.length) {
+    const contentCell = row.querySelector(':scope > div');
+    if (contentCell && index < modelFieldOrder.length) {
       const fieldName = modelFieldOrder[index];
-      pElement.classList.add(fieldName);
+      contentCell.classList.add(fieldName);
 
       // release_regionの場合は特別処理
       if (fieldName === 'release_region') {
-        decorateReleaseRegion(pElement);
+        decorateReleaseRegion(contentCell);
       }
 
       // product_priceの場合は価格フォーマット処理
       if (fieldName === 'product_price') {
-        decorateProductPrice(pElement);
+        decorateProductPrice(contentCell);
       }
     }
   });
-
-  // 2列レイアウト用のコンテナを作成
-  const productImage = block.querySelector('.product_image');
-  const productDescr = block.querySelector('.product_descr');
-  const productPrice = block.querySelector('.product_price');
-  const remarks = block.querySelector('.remarks');
-  const allergy = block.querySelector('.allergy');
-
-  if (productImage && productDescr) {
-    // 2列コンテナを作成
-    const twoColumnContainer = document.createElement('div');
-    twoColumnContainer.className = 'product-two-column';
-
-    // 左列（画像）
-    const leftColumn = document.createElement('div');
-    leftColumn.className = 'product-left-column';
-    leftColumn.appendChild(productImage);
-
-    // 右列（説明、価格、備考、アレルギー）
-    const rightColumn = document.createElement('div');
-    rightColumn.className = 'product-right-column';
-    if (productDescr) rightColumn.appendChild(productDescr);
-    if (productPrice) rightColumn.appendChild(productPrice);
-    if (remarks) rightColumn.appendChild(remarks);
-    if (allergy) rightColumn.appendChild(allergy);
-
-    twoColumnContainer.appendChild(leftColumn);
-    twoColumnContainer.appendChild(rightColumn);
-
-    // product_titleの後に挿入
-    const productTitle = block.querySelector('.product_title');
-    if (productTitle && productTitle.parentElement) {
-      productTitle.parentElement.insertAdjacentElement('afterend', twoColumnContainer);
-    }
-  }
 }

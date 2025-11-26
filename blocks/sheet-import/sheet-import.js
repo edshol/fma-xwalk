@@ -236,6 +236,18 @@ async function createBlockNode(nodePath, nodeData, csrfToken) {
   console.log('Creating block node with data:', nodePath);
   console.log('Data received:', nodeData);
 
+  // モデル定義順でプロパティを追加（JCRの格納順を制御）
+  const modelFieldOrder = [
+    'release_region',
+    'product_title',
+    'product_image',
+    'product_descr',
+    'product_price',
+    'release_date',
+    'remarks',
+    'allergy'
+  ];
+
   try {
     const formData = new URLSearchParams();
     formData.append('jcr:primaryType', 'nt:unstructured');
@@ -243,18 +255,24 @@ async function createBlockNode(nodePath, nodeData, csrfToken) {
     formData.append('model', 'product');
     formData.append('name', 'Product');
 
-    Object.keys(nodeData).forEach(key => {
-      console.log(`Processing field: ${key} = ${nodeData[key]}`);
-      if (key === 'name') {
-        formData.append('jcr:title', nodeData[key]);
-      } else if (key === 'product_descr') {
-        // product_descrは<p>タグで囲む
-        const value = nodeData[key];
-        formData.append(key, `<p>${value}</p>`);
-      } else {
-        formData.append(key, nodeData[key]);
+    // モデル定義順でプロパティを追加
+    modelFieldOrder.forEach(key => {
+      if (nodeData[key] !== undefined) {
+        console.log(`Processing field: ${key} = ${nodeData[key]}`);
+        if (key === 'product_descr') {
+          // product_descrは<p>タグで囲む
+          const value = nodeData[key];
+          formData.append(key, `<p>${value}</p>`);
+        } else {
+          formData.append(key, nodeData[key]);
+        }
       }
     });
+
+    // nameフィールドはjcr:titleに
+    if (nodeData.name) {
+      formData.append('jcr:title', nodeData.name);
+    }
 
     const response = await fetch(nodePath, {
       method: 'POST',
