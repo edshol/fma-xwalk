@@ -1,11 +1,57 @@
-/* Product Block - 最小限のスタイル */
+/* Product Block */
 
-/* Release Region Tags */
+/* 2カラムレイアウト */
+.product {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto 1fr;
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* 発売地域 - 全幅 */
+.product .release_region {
+  grid-column: 1 / -1;
+}
+
+/* タイトル - 全幅 */
+.product .product_title {
+  grid-column: 1 / -1;
+}
+
+/* 画像 - 左カラム */
+.product .product_image {
+  grid-column: 1;
+  grid-row: 3 / 7;
+}
+
+/* 右カラムのコンテンツ */
+.product .product_descr,
+.product .release_date,
+.product .product_price,
+.product .remarks,
+.product .allergy {
+  grid-column: 2;
+}
+
+/* ===== 発売地域タグ ===== */
 .product .release-region-container {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.product .attention-label {
+  padding: 0.3rem 0.8rem;
+  background-color: #e53935;
+  color: #fff;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .product .release-region-label {
@@ -23,15 +69,123 @@
   border-radius: 3px;
   font-size: 0.85rem;
   font-weight: 500;
-  display: inline-block;
 }
 
 .product .region-tag.active {
-  background-color: #007DB8;
-  color: #ffffff;
+  background-color: #4caf50;
+  color: #fff;
 }
 
 .product .region-tag.inactive {
-  background-color: #e0e0e0;
-  color: #757575;
+  background-color: #9e9e9e;
+  color: #fff;
+}
+
+/* ===== タイトル ===== */
+.product .product_title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  padding-bottom: 0.5rem;
+  border-bottom: 4px solid #4caf50;
+  margin-bottom: 1.5rem;
+}
+
+.product .product_title p {
+  margin: 0;
+}
+
+/* ===== 画像 ===== */
+.product .product_image img {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* ===== 説明文 ===== */
+.product .product_descr {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.product .product_descr p {
+  margin: 0;
+}
+
+/* ===== 発売日 ===== */
+.product .release-date-container {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.product .release-date-label {
+  font-weight: 500;
+}
+
+/* ===== 価格 ===== */
+.product .price-container {
+  margin-bottom: 1.5rem;
+}
+
+.product .price-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.product .price-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.product .tax-included {
+  font-size: 1.2rem;
+  font-weight: normal;
+}
+
+/* ===== 備考 ===== */
+.product .remarks-container {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.product .remarks-label {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.product .remarks-content {
+  white-space: pre-line;
+}
+
+/* ===== アレルギー ===== */
+.product .allergy {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* ===== レスポンシブ ===== */
+@media (max-width: 768px) {
+  .product {
+    grid-template-columns: 1fr;
+  }
+
+  .product .product_image {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .product .product_descr,
+  .product .release_date,
+  .product .product_price,
+  .product .remarks,
+  .product .allergy {
+    grid-column: 1;
+  }
 }
