@@ -558,7 +558,7 @@ async function moveImageToImported(sourcePath, imageFolder, csrfToken) {
 
 // ===== Main Import Function =====
 
-async function createNodesFromSheet(spreadsheetUrl, imageFolderPath) {
+async function createNodesFromSheet(spreadsheetUrl, imageFolderPath, onProgress) {
   console.log('=== Starting node creation from Google Sheet ===');
 
   const csrfToken = await getCSRFToken();
@@ -572,6 +572,9 @@ async function createNodesFromSheet(spreadsheetUrl, imageFolderPath) {
     throw new Error('Invalid Google Spreadsheet URL');
   }
 
+  // 進捗通知: データ読み込み中
+  if (onProgress) onProgress({ type: 'loading', message: 'Loading Google Sheet...' });
+
   const csvContent = await loadGoogleSheet(sheetId);
   if (!csvContent) {
     throw new Error('Failed to load spreadsheet data');
@@ -581,6 +584,9 @@ async function createNodesFromSheet(spreadsheetUrl, imageFolderPath) {
   if (data.length === 0) {
     throw new Error('No data found in spreadsheet');
   }
+
+  // 進捗通知: データ読み込み完了
+  if (onProgress) onProgress({ type: 'loaded', message: `Loaded ${data.length} items`, total: data.length });
 
   // Ensure image folder path ends without trailing slash
   const imageFolder = imageFolderPath.replace(/\/$/, '');
@@ -604,6 +610,7 @@ async function createNodesFromSheet(spreadsheetUrl, imageFolderPath) {
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
     const name = row.name || row.Name || row.NAME || `item-${i}`;
+    const productTitle = row.product_title || row.productTitle || name;
     const category = (row.category || 'omusubi').toLowerCase();
     const nodePath = `/content/fma/goods/${category}/${name}`;
 
@@ -625,7 +632,20 @@ async function createNodesFromSheet(spreadsheetUrl, imageFolderPath) {
     }
 
     const result = await createNodeViaAPI(nodePath, row, csrfToken);
+    result.productTitle = productTitle;
     results.push(result);
+
+    // 進捗通知: 各アイテムの処理結果
+    if (onProgress) {
+      onProgress({
+        type: 'item',
+        index: i + 1,
+        total: data.length,
+        productTitle,
+        success: result.success,
+        path: nodePath
+      });
+    }
 
     await new Promise(resolve => setTimeout(resolve, 100));
   }
@@ -746,17 +766,47 @@ export default async function decorate(block) {
   submitBtn.className = 'submit-btn';
   submitBtn.textContent = 'Import from Google Sheet';
 
-  // Result area
-  const resultArea = document.createElement('div');
-  resultArea.className = 'result-area';
-  resultArea.textContent = 'Ready to import from Google Spreadsheet';
+  // Progress area (スクロール可能なログ表示エリア)
+  const progressArea = document.createElement('div');
+  progressArea.className = 'progress-area';
+
+  // Progress header (進捗状況のサマリー)
+  const progressHeader = document.createElement('div');
+  progressHeader.className = 'progress-header';
+  progressHeader.textContent = 'Ready to import from Google Spreadsheet';
+
+  // Progress log (スクロール可能なログリスト)
+  const progressLog = document.createElement('div');
+  progressLog.className = 'progress-log';
+
+  progressArea.appendChild(progressHeader);
+  progressArea.appendChild(progressLog);
 
   form.appendChild(urlGroup);
   form.appendChild(pathGroup);
   form.appendChild(submitBtn);
   formContainer.appendChild(form);
-  formContainer.appendChild(resultArea);
+  formContainer.appendChild(progressArea);
   block.appendChild(formContainer);
+
+  // ログにアイテムを追加する関数
+  function addLogItem(productTitle, success, index, total) {
+    const logItem = document.createElement('div');
+    logItem.className = `log-item ${success ? 'success' : 'error'}`;
+
+    const icon = success ? '✓' : '✗';
+    const statusClass = success ? 'status-success' : 'status-error';
+
+    logItem.innerHTML = `
+      <span class="log-index">${index}/${total}</span>
+      <span class="log-status ${statusClass}">${icon}</span>
+      <span class="log-title">${productTitle}</span>
+    `;
+
+    progressLog.appendChild(logItem);
+    // 自動スクロール
+    progressLog.scrollTop = progressLog.scrollHeight;
+  }
 
   // Submit handler
   form.addEventListener('submit', async (e) => {
@@ -765,46 +815,57 @@ export default async function decorate(block) {
     const imageFolderPath = pathInput.value.trim();
 
     if (!spreadsheetUrl) {
-      resultArea.textContent = 'Please enter a Google Spreadsheet URL';
-      resultArea.className = 'result-area error';
+      progressHeader.textContent = 'Please enter a Google Spreadsheet URL';
+      progressHeader.className = 'progress-header error';
       return;
     }
 
     if (!imageFolderPath) {
-      resultArea.textContent = 'Please enter an Image Folder Path';
-      resultArea.className = 'result-area error';
+      progressHeader.textContent = 'Please enter an Image Folder Path';
+      progressHeader.className = 'progress-header error';
       return;
     }
 
-    resultArea.textContent = 'Processing...';
-    resultArea.className = 'result-area processing';
+    // ログをクリア
+    progressLog.innerHTML = '';
+    progressHeader.textContent = 'Initializing...';
+    progressHeader.className = 'progress-header processing';
     submitBtn.disabled = true;
 
+    // 進捗コールバック
+    const onProgress = (progress) => {
+      if (progress.type === 'loading') {
+        progressHeader.textContent = progress.message;
+      } else if (progress.type === 'loaded') {
+        progressHeader.textContent = `${progress.message} - Starting import...`;
+      } else if (progress.type === 'item') {
+        progressHeader.textContent = `Importing... ${progress.index}/${progress.total}`;
+        addLogItem(progress.productTitle, progress.success, progress.index, progress.total);
+      }
+    };
+
     try {
-      const results = await createNodesFromSheet(spreadsheetUrl, imageFolderPath);
+      const results = await createNodesFromSheet(spreadsheetUrl, imageFolderPath, onProgress);
 
       if (results) {
         const successCount = results.filter(r => r.success).length;
         const failCount = results.length - successCount;
 
-        resultArea.innerHTML = `
-          <strong>Complete!</strong><br>
-          ✓ Success: ${successCount} nodes<br>
-          ${failCount > 0 ? `✗ Failed: ${failCount} nodes<br>` : ''}
-          Total: ${results.length} nodes processed
+        progressHeader.innerHTML = `
+          <strong>Complete!</strong> -
+          <span class="status-success">✓ ${successCount}</span>
+          ${failCount > 0 ? `<span class="status-error">✗ ${failCount}</span>` : ''}
+          (Total: ${results.length})
         `;
-        resultArea.className = 'result-area success';
+        progressHeader.className = 'progress-header complete';
       } else {
-        resultArea.textContent = 'Failed to process Google Sheet';
-        resultArea.className = 'result-area error';
+        progressHeader.textContent = 'Failed to process Google Sheet';
+        progressHeader.className = 'progress-header error';
       }
     } catch (error) {
       console.error('Error during import:', error);
-      resultArea.innerHTML = `
-        <strong>Error:</strong><br>
-        ${error.message || 'Unknown error occurred'}
-      `;
-      resultArea.className = 'result-area error';
+      progressHeader.textContent = `Error: ${error.message || 'Unknown error occurred'}`;
+      progressHeader.className = 'progress-header error';
     } finally {
       submitBtn.disabled = false;
     }
