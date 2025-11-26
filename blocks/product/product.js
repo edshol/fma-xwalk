@@ -65,25 +65,57 @@ function decorateProductPrice(element) {
 }
 
 export default function decorate(block) {
-  // AEM出力順序に対応するフィールド名
-  const fieldNames = [
+  // モデル定義での正しい順序（_product.json の fields 順）
+  const modelFieldOrder = [
     'release_region',
-    'release_date',
     'product_title',
     'product_image',
     'product_descr',
+    'product_price',
+    'release_date',
+    'remarks',
+    'allergy'
+  ];
+
+  // AEM出力順序に対応するフィールド名（現在のDOM順序）
+  const aemOutputOrder = [
+    'release_region',
+    'release_date',
+    'product_title',
+    'product_descr',
+    'product_image',
     'product_price',
     'remarks',
     'allergy'
   ];
 
-  // すべてのp要素を取得（フィールドの値が格納されている）
+  // 各行（div > div）を取得
+  const rows = Array.from(block.querySelectorAll(':scope > div'));
+
+  // AEM出力順序でフィールド名と行をマッピング
+  const rowMap = new Map();
+  rows.forEach((row, index) => {
+    if (index < aemOutputOrder.length) {
+      rowMap.set(aemOutputOrder[index], row);
+    }
+  });
+
+  // モデル定義順にDOMを並び替え
+  block.innerHTML = '';
+  modelFieldOrder.forEach(fieldName => {
+    const row = rowMap.get(fieldName);
+    if (row) {
+      block.appendChild(row);
+    }
+  });
+
+  // すべてのp要素を取得（並び替え後の順序で）
   const allPElements = Array.from(block.querySelectorAll('div > div > p'));
 
-  // 各p要素にフィールド名のクラスを付与
+  // 各p要素にフィールド名のクラスを付与（モデル定義順）
   allPElements.forEach((pElement, index) => {
-    if (index < fieldNames.length) {
-      const fieldName = fieldNames[index];
+    if (index < modelFieldOrder.length) {
+      const fieldName = modelFieldOrder[index];
       pElement.classList.add(fieldName);
 
       // release_regionの場合は特別処理
