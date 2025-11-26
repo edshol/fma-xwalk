@@ -221,16 +221,26 @@
       {
         "component": "text",
         "valueType": "string",
+        "name": "category",
+        "label": "Category",
+        "value": "omusubi",
+        "data": { "field": "category" }
+      },
+      {
+        "component": "text",
+        "valueType": "string",
         "name": "release_region",
         "label": "Release Region",
-        "value": "北海道:1/東北:0/関東:1/東海:1/北陸関西:1/中国四国:1/九州沖縄:1"
+        "value": "北海道:1/東北:0/関東:1/東海:1/北陸関西:1/中国四国:1/九州沖縄:1",
+        "data": { "field": "release_region" }
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "product_title",
         "label": "Product Title",
-        "value": "Product Title"
+        "value": "Product Title",
+        "data": { "field": "product_title" }
       },
       {
         "component": "reference",
@@ -238,42 +248,48 @@
         "name": "product_image",
         "label": "Product Image",
         "multi": false,
-        "value": "/content/dam/fma/image-default.jpg"
+        "value": "/content/dam/fma/image-default.jpg",
+        "data": { "field": "product_image" }
       },
       {
         "component": "richtext",
         "valueType": "string",
         "name": "product_descr",
         "label": "Product Description",
-        "value": "<p>Product description goes here</p>"
+        "value": "<p>Product description goes here</p>",
+        "data": { "field": "product_descr" }
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "product_price",
         "label": "Product Price",
-        "value": "1000"
+        "value": "1000",
+        "data": { "field": "product_price" }
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "release_date",
         "label": "Release Date",
-        "value": "2025-01-01"
+        "value": "2025-01-01",
+        "data": { "field": "release_date" }
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "remarks",
         "label": "Remarks",
-        "value": "備考欄"
+        "value": "備考欄",
+        "data": { "field": "remarks" }
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "allergy",
         "label": "Allergy",
-        "value": "アレルギー情報"
+        "value": "アレルギー情報",
+        "data": { "field": "allergy" }
       }
     ]
   },

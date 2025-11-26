@@ -150,7 +150,7 @@ function decorateRemarks(row) {
 }
 
 export default function decorate(block) {
-  // 表示したい順序（categoryは表示しないがデータ取得用に使う）
+  // 表示したい順序
   const displayOrder = [
     'release_region',
     'product_title',
@@ -162,22 +162,39 @@ export default function decorate(block) {
     'allergy',
   ];
 
-  // data-aue-prop属性を持つすべての要素を取得
-  const fields = block.querySelectorAll('[data-aue-prop]');
+  // デバッグ用: ブロックの初期HTML
+  console.log('Product block initial HTML:', block.innerHTML);
 
-  // フィールドをマップに格納（categoryも含めて取得）
   const fieldMap = {};
-  fields.forEach((field) => {
-    const propName = field.getAttribute('data-aue-prop');
-    fieldMap[propName] = field.cloneNode(true);
-  });
+  let category = '';
+
+  // data-aue-prop（AEM Author環境）または data-field（aem.live/aem.page環境）でフィールドを取得
+  const aueFields = block.querySelectorAll('[data-aue-prop]');
+  const dataFields = block.querySelectorAll('[data-field]');
+
+  if (aueFields.length > 0) {
+    // AEM Author環境: data-aue-prop属性でフィールドを識別
+    console.log('Using AEM Author mode (data-aue-prop)');
+    aueFields.forEach((field) => {
+      const propName = field.getAttribute('data-aue-prop');
+      fieldMap[propName] = field.cloneNode(true);
+    });
+  } else if (dataFields.length > 0) {
+    // aem.live/aem.page環境: data-field属性でフィールドを識別
+    console.log('Using Edge Delivery mode (data-field)');
+    dataFields.forEach((field) => {
+      const fieldName = field.getAttribute('data-field');
+      fieldMap[fieldName] = field.cloneNode(true);
+    });
+  }
 
   // categoryの値を取得
-  let category = '';
   if (fieldMap.category) {
     category = fieldMap.category.textContent.trim().toLowerCase();
   }
-  console.log('Category from block:', category);
+
+  console.log('Category:', category);
+  console.log('FieldMap keys:', Object.keys(fieldMap));
 
   // ブロックの内容をクリアして再構築
   block.innerHTML = '';
